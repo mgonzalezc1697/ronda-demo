@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Guía rápida — Ronda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --font-display:'Bricolage Grotesque','Public Sans',system-ui,sans-serif;
+  --font-body:'Public Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --bg:#0D1613; --surface:#15211C; --surface-2:#1C2B24;
+  --ink:#F2F6F3; --ink-muted:#9FB3AB; --ink-faint:#6E8079;
+  --line:#28392F; --line-soft:#1F2E26;
+  --accent:#3FC9B4; --accent-ink:#0D1613; --accent-soft:rgba(63,201,180,.14);
+  --gold:#E7B75E; --gold-soft:rgba(231,183,94,.14);
+  --shadow:0 24px 60px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2{font-family:var(--font-display);font-weight:700;line-height:1.1;margin:0;letter-spacing:-.01em}
+p{margin:0}
+.muted{color:var(--ink-muted)}
+.wrap{max-width:640px;margin:0 auto;padding:0 24px}
+
+/* topbar */
+.top{display:flex;align-items:center;gap:10px;padding:22px 24px 0}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-weight:700;font-size:17px;color:var(--ink)}
+.brand svg{flex:none}
+
+/* hero */
+.hero{padding:40px 0 16px}
+.hero h1{font-size:38px;max-width:17ch;margin-bottom:18px}
+.hero p{max-width:46ch;color:var(--ink-muted);font-size:17px}
+.hero p + p{margin-top:10px}
+
+/* la ronda: columna de progreso + pasos */
+.route{position:relative;margin-top:12px}
+.rail-bg{position:absolute;left:19px;top:30px;bottom:30px;width:2px;background:var(--line)}
+.rail-fg{position:absolute;left:19px;top:30px;width:2px;height:0%;background:var(--accent);transition:height .2s linear}
+.route-item{position:relative;display:flex;gap:22px;padding:34px 0}
+.route-item:first-child{padding-top:10px}
+.marker{width:40px;flex:none;display:flex;justify-content:center;align-items:flex-start;padding-top:2px}
+.dot{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1.5px solid var(--line);display:grid;place-items:center;font-weight:700;font-family:var(--font-display);font-size:15px;color:var(--ink-faint);transition:border-color .3s,background .3s,color .3s;flex:none}
+.dot.active{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.content{flex:1;min-width:0;padding-top:4px}
+.content h2{font-size:21px;margin-bottom:8px}
+.content p.d{color:var(--ink-muted);max-width:44ch;margin-bottom:18px;font-size:15.5px}
+
+/* mock card */
+.mock{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+.mock .mh{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.mock .mh i{width:6px;height:6px;border-radius:50%;background:var(--line)}
+.mock .mh b{font-size:12px;color:var(--ink-faint);font-weight:600}
+.mrow{display:flex;align-items:center;gap:12px;padding:11px 12px;border:1px solid var(--line-soft);border-radius:10px;background:var(--surface-2);margin-bottom:8px}
+.mrow:last-child{margin-bottom:0}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:12px;flex:none}
+.mrow .who b{display:block;font-size:14px;font-weight:600}
+.mrow .who span{font-size:12.5px;color:var(--ink-muted)}
+.searchbox{display:flex;gap:9px;padding:11px 12px;border:1.5px solid var(--accent);border-radius:10px;background:var(--surface-2);margin-bottom:10px;align-items:center}
+.searchbox svg{flex:none;color:var(--accent)}
+.searchbox span{flex:1;color:var(--ink-faint);font-size:14px}
+.pill{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700}
+.pill.soft{background:var(--accent-soft);color:var(--accent)}
+
+/* calculadora */
+.calc-card{display:flex;flex-direction:column;gap:12px}
+.calc-line{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:var(--ink-muted)}
+.calc-line b{color:var(--ink);font-weight:600}
+.calc-total{display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line);padding-top:12px;margin-top:2px}
+.calc-total .amt{font-family:var(--font-display);font-size:30px;font-weight:700;color:var(--gold)}
+.wow-tag{display:none;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--gold);background:var(--gold-soft);padding:4px 10px;border-radius:999px;margin-top:4px;width:fit-content}
+.wow-tag.show{display:flex;animation:pop .4s ease}
+@keyframes pop{0%{transform:scale(.7);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+
+/* ledger */
+.ledger-mini{display:grid;grid-template-columns:1fr 1fr 1fr;text-align:left}
+.ledger-mini>div{padding-right:10px}
+.ledger-mini .v{font-family:var(--font-display);font-weight:700;font-size:19px}
+.ledger-mini .k{font-size:11.5px;color:var(--ink-muted)}
+.bar{height:8px;border-radius:4px;overflow:hidden;background:var(--surface-2);border:1px solid var(--line-soft);margin-top:14px}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width 1s ease}
+.route-item.show .bar i{width:74%}
+
+/* panel de confianza (paso 5) */
+.trust{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}
+.trust-row{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-bottom:1px solid var(--line-soft)}
+.trust-row:last-child{border-bottom:0}
+.trust-row svg{flex:none;width:20px;height:20px;color:var(--gold);margin-top:2px}
+.trust-row h3{font-family:var(--font-body);font-size:15px;font-weight:600;margin-bottom:3px}
+.trust-row p{font-size:13.5px;color:var(--ink-muted)}
+.honest{margin-top:16px;padding:14px 16px;border-radius:12px;background:var(--surface-2);font-size:13.5px;color:var(--ink-muted);display:flex;gap:10px}
+.honest svg{flex:none;width:16px;height:16px;margin-top:2px;color:var(--ink-faint)}
+
+/* cta final */
+.cta{padding:12px 0 72px}
+.cta .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:30px 26px;box-shadow:var(--shadow)}
+.cta h2{font-size:21px;margin-bottom:8px}
+.cta p{color:var(--ink-muted);margin-bottom:22px;font-size:15px}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:0 20px;border-radius:10px;font-weight:600;text-decoration:none;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:14.5px;font-family:var(--font-body)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{background:#56D4C1}
+.btn:not(.primary):hover{border-color:var(--ink-faint)}
+.foot{text-align:center;padding:0 24px 28px;font-size:12px;color:var(--ink-faint)}
+svg.ic{display:block}
+@media print{
+  body{background:#fff;color:#111}
+  .btnrow{display:none}
+}
+@media (max-width:420px){
+  .hero h1{font-size:32px}
+  .rail-bg,.rail-fg{left:15px}
+  .marker{width:32px}
+  .dot{width:32px;height:32px;font-size:13px}
+  .route-item{gap:16px}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <span class="brand">
+    <svg width="26" height="26" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="10.5" fill="none" stroke="var(--accent)" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="48 18" transform="rotate(-60 15 15)"/><circle cx="15" cy="15" r="3.6" fill="var(--accent)"/></svg>
+    Ronda
+  </span>
+</div>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>Así se mueve tu información, de consulta en consulta.</h1>
+    <p>Esta guía recorre las seis paradas de Ronda antes de que abras el prototipo: buscar, ver, migrar, registrar, cobrar y proteger.</p>
+    <p>Tómate dos minutos — después el prototipo queda abierto para que lo toques tú mismo/a.</p>
+  </div>
+</section>
+
+<div class="wrap">
+<div class="route" id="route">
+  <div class="rail-bg"></div>
+  <div class="rail-fg" id="railFg"></div>
+
+  <section class="route-item" data-step="1">
+    <div class="marker"><div class="dot">1</div></div>
+    <div class="content">
+      <h2>Buscas por cédula</h2>
+      <p class="d">Sin carpetas ni computadoras distintas por centro. Todos tus pacientes quedan en un solo lugar, sin importar dónde los atendiste.</p>
+      <div class="mock">
+        <div class="mh"><i></i><i></i><i></i><b>Buscar paciente</b></div>
+        <div class="searchbox">
+          <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <span>12.345.678</span>
+        </div>
+        <div class="mrow"><span class="avatar">MC</span><span class="who"><b>María Elena Contreras</b><span>V-12.345.678 · última consulta 18 sep</span></span></div>
+        <div class="mrow"><span class="avatar">CM</span><span class="who"><b>Carlos Alberto Medina</b><span>V-9.876.543 · última consulta 24 sep</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="route-item" data-step="2">
+    <div class="marker"><div class="dot">2</div></div>
+    <div class="content">
+      <h2>Abres la historia completa</h2>
+      <p class="d">Antecedentes, notas de control, informes y las fotos de estudios que subas — todo en orden, listo para imprimir si lo necesitas.</p>
+      <div class="mock">
+        <div class="mh"><i></i><i></i><i></i><b>Ficha de María Elena</b></div>
+        <div class="mrow"><span class="who"><b>18 sep 2026 <span class="pill soft" style="margin-left:6px">Informe</span></b><span>Disminución de agudeza visual en ojo derecho</span></span></div>
+        <div class="mrow"><span class="who"><b>21 ago 2026</b><span>Control de glicemia — nota rápida</span></span></div>
+        <div class="mrow"><span class="who"><b>10 jun 2026 <span class="pill soft" style="margin-left:6px">Informe</span></b><span>Chequeo general anual</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="route-item" data-step="3">
+    <div class="marker"><div class="dot">3</div></div>
+    <div class="content">
+      <h2>Migras lo que ya tienes escrito</h2>
+      <p class="d">Si ya llevas historias en Word, no las vuelves a escribir: las subes como adjunto a cada paciente y quedan dentro de Ronda, buscables igual que el resto.</p>
+      <div class="mock">
+        <div class="mh"><i></i><i></i><i></i><b>Migración de historias</b></div>
+        <div class="mrow"><span class="avatar" style="background:var(--gold-soft);color:var(--gold)">W</span><span class="who"><b>Ficha_Maria_Contreras.docx</b><span>Subido como adjunto · 2,1 MB</span></span></div>
+        <div class="mrow"><span class="avatar" style="background:var(--gold-soft);color:var(--gold)">W</span><span class="who"><b>Historial_Carlos_Medina.docx</b><span>Subido como adjunto · 1,4 MB</span></span></div>
+      </div>
+      <div class="honest" style="margin-top:14px">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span>Esto es un plus, no una obligación: migras lo viejo a tu ritmo. Lo único que hay que tener claro es que el control de cobros (lo que te corresponde por centro, lo cobrado y lo pendiente) arranca desde las consultas nuevas que registres de aquí en adelante — lo que ya cobraste en el pasado no se recalcula.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="route-item" data-step="4">
+    <div class="marker"><div class="dot">4</div></div>
+    <div class="content">
+      <h2>Registras la consulta y Ronda calcula</h2>
+      <p class="d">Indicas el centro — o lo dejas vacío si fue particular — y Ronda calcula al instante cuánto te corresponde, sin que saques la cuenta tú.</p>
+      <div class="mock calc-card">
+        <div class="mh"><i></i><i></i><i></i><b>Calculadora de honorarios</b></div>
+        <div class="calc-line"><span>Monto de la consulta</span><b>$40,00</b></div>
+        <div class="calc-line"><span>Centro: Clínica Santa Elena · 60%</span><b>×0,60</b></div>
+        <div class="calc-total"><span class="muted">Te corresponde</span><span class="amt" id="amt">$0,00</span></div>
+        <span class="wow-tag" id="wow">calculado al instante — sin lápiz ni calculadora</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="route-item" data-step="5">
+    <div class="marker"><div class="dot">5</div></div>
+    <div class="content">
+      <h2>Ves qué te deben y qué ya cobraste</h2>
+      <p class="d">Por cada centro: lo que corresponde, lo que ya pagaron y lo que sigue pendiente — para que nunca más se te pase un cobro.</p>
+      <div class="mock">
+        <div class="mh"><i></i><i></i><i></i><b>Resumen de septiembre</b></div>
+        <div class="ledger-mini">
+          <div><div class="v">$612</div><div class="k">Corresponde</div></div>
+          <div><div class="v">$453</div><div class="k">Cobrado</div></div>
+          <div><div class="v" style="color:var(--gold)">$159</div><div class="k">Pendiente</div></div>
+        </div>
+        <div class="bar"><i></i></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="route-item" data-step="6">
+    <div class="marker"><div class="dot">6</div></div>
+    <div class="content">
+      <h2>Y así se queda protegido</h2>
+      <p class="d">Lo mismo que le explicamos a cualquier médico que nos pregunta antes de empezar:</p>
+      <div class="trust">
+        <div class="trust-row">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          <div><h3>Acceso exclusivo</h3><p>Solo tú ves tus pacientes. Ni otro médico, ni nosotros, entramos a tu información.</p></div>
+        </div>
+        <div class="trust-row">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>
+          <div><h3>Datos cifrados</h3><p>Viajan y se guardan cifrados, el mismo estándar que usa la banca en línea.</p></div>
+        </div>
+        <div class="trust-row">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 11-3-6.7M21 4v5h-5"/></svg>
+          <div><h3>Respaldo automático diario</h3><p>Cada día se guarda una copia aparte. Si algo le pasa al servidor, no se pierde tu historial.</p></div>
+        </div>
+        <div class="trust-row">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          <div><h3>Nada se comparte</h3><p>Tus datos no se venden ni se comparten con terceros, bajo ningún concepto.</p></div>
+        </div>
+      </div>
+      <div class="honest">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span>Hoy esto es un prototipo con datos de ejemplo — ningún dato real se carga todavía. Antes de migrar historias reales, pasamos por una auditoría de seguridad independiente para confirmar que todo funciona como decimos.</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+</div>
+
+<section class="cta">
+  <div class="wrap">
+    <div class="card">
+      <h2>Ya puedes explorarlo tú mismo/a</h2>
+      <p>El prototipo tiene datos de ejemplo — puedes tocar, buscar y registrar sin miedo a dañar nada real.</p>
+      <div class="btnrow">
+        <a class="btn primary" href="https://claude.ai/artifact/N5TCb9Uxb3YPYuczKwXTyN" target="_blank" rel="noopener">Abrir el prototipo</a>
+        <button class="btn" onclick="window.print()">Guardar como PDF</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="foot">Ronda · by AutomStack — guía de orientación, prototipo con datos ficticios.</div>
+
+<script>
+const items = document.querySelectorAll('.route-item');
+const dots = document.querySelectorAll('.dot');
+
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    const step = en.target.dataset.step;
+    const dot = en.target.querySelector('.dot');
+    if(en.isIntersecting){
+      en.target.classList.add('show');
+      dot.classList.add('active');
+      if(step==='4') runCalc();
+    }
+  });
+},{threshold:.4});
+items.forEach(s=>io.observe(s));
+
+function runCalc(){
+  const el = document.getElementById('amt');
+  const wow = document.getElementById('wow');
+  if(el.dataset.done) return;
+  el.dataset.done = '1';
+  const target = 24.00;
+  const start = performance.now();
+  const dur = 900;
+  function tick(now){
+    const p = Math.min(1,(now-start)/dur);
+    const val = target * (1 - Math.pow(1-p,3));
+    el.textContent = '$' + val.toFixed(2).replace('.',',');
+    if(p<1) requestAnimationFrame(tick);
+    else setTimeout(()=>wow.classList.add('show'), 150);
+  }
+  requestAnimationFrame(tick);
+}
+
+/* el hilo de la ronda: avanza con el scroll, como el recorrido del médico */
+const route = document.getElementById('route');
+const railFg = document.getElementById('railFg');
+function updateRail(){
+  const rect = route.getBoundingClientRect();
+  const viewportCenter = window.innerHeight * 0.5;
+  const total = rect.height;
+  const passed = Math.min(Math.max(viewportCenter - rect.top, 0), total);
+  railFg.style.height = (passed/total*100) + '%';
+}
+window.addEventListener('scroll', updateRail, {passive:true});
+window.addEventListener('resize', updateRail);
+updateRail();
+</script>
+</body>
+</html>

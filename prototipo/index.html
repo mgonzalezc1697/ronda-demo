@@ -1,0 +1,777 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Ronda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Una sola estructura: barra lateral en laptop, barra inferior en teléfono.
+   Dos temas (color de acento + ilustración) sobre los mismos componentes.
+   Tokens derivados de las rampas neutro / secundario / acento cálido de AutomStack. */
+:root{
+  --font-display:'Bricolage Grotesque','Public Sans',system-ui,sans-serif;
+  --font-body:'Public Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --r:12px;
+  --paper-bg:#FFFFFF; --paper-ink:#18181B; --paper-line:#CACACE;
+  /* neutros (claro) */
+  --bg-page:#FAFAFA; --bg-surface:#FFFFFF; --bg-sunk:#F2F2F3;
+  --text:#18181B; --text-2:#5C5B67; --text-3:#6A6976;
+  --border:#E5E4E7; --border-strong:#CACACE;
+  /* tema internista / general (claro) */
+  --accent:#076B6B; --accent-hover:#084646; --accent-on:#FFFFFF; --accent-ink:#076B6B;
+  --accent-soft:#EEFCFC; --accent-soft-text:#084646;
+  /* semánticos */
+  --ok-bg:#E3F5EA; --ok-text:#1B6B43; --ok-bar:#2E9E67;
+  --warn-bg:#FFF0D6; --warn-text:#8A4B00; --warn-bar:#B97400;
+  --bad-bg:#FDE7E4; --bad-text:#B42318; --bad-bar:#D64533;
+  --shadow:0 12px 40px rgba(24,24,27,.18);
+}
+/* tema pediatría (claro) */
+:root[data-tema="pediatria"]{
+  --bg-page:#FDF7F6; --bg-sunk:#F7F0EE; --border:#EADFDC;
+  --accent:#FF6B4A; --accent-hover:#F93E15; --accent-on:#18181B; --accent-ink:#C02D0C;
+  --accent-soft:#FCEFEC; --accent-soft-text:#7C220E;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg-page:#18181B; --bg-surface:#2C2B31; --bg-sunk:#222126;
+    --text:#FAFAFA; --text-2:#CACACE; --text-3:#A3A2A9; --border:#414149; --border-strong:#5C5B67;
+    --accent:#00B8B8; --accent-hover:#22F8F8; --accent-on:#18181B; --accent-ink:#75F6F6;
+    --accent-soft:#072626; --accent-soft-text:#B2F7F7;
+    --ok-bg:#12301F; --ok-text:#7FE0A8; --ok-bar:#4CC38A;
+    --warn-bg:#3A2A08; --warn-text:#F5C05E; --warn-bar:#F2B84B;
+    --bad-bg:#3F1512; --bad-text:#FF9C92; --bad-bar:#FF7A6B;
+    --shadow:0 12px 40px rgba(0,0,0,.5);
+    color-scheme:dark;
+  }
+  :root:not([data-theme="light"])[data-tema="pediatria"]{
+    --accent:#FB9A84; --accent-hover:#FAC0B2; --accent-on:#18181B; --accent-ink:#FAC0B2;
+    --accent-soft:#43160C; --accent-soft-text:#FBDBD4;
+  }
+}
+:root[data-theme="dark"]{
+  --bg-page:#18181B; --bg-surface:#2C2B31; --bg-sunk:#222126;
+  --text:#FAFAFA; --text-2:#CACACE; --text-3:#A3A2A9; --border:#414149; --border-strong:#5C5B67;
+  --accent:#00B8B8; --accent-hover:#22F8F8; --accent-on:#18181B; --accent-ink:#75F6F6;
+  --accent-soft:#072626; --accent-soft-text:#B2F7F7;
+  --ok-bg:#12301F; --ok-text:#7FE0A8; --ok-bar:#4CC38A;
+  --warn-bg:#3A2A08; --warn-text:#F5C05E; --warn-bar:#F2B84B;
+  --bad-bg:#3F1512; --bad-text:#FF9C92; --bad-bar:#FF7A6B;
+  --shadow:0 12px 40px rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+:root[data-theme="dark"][data-tema="pediatria"]{
+  --accent:#FB9A84; --accent-hover:#FAC0B2; --accent-on:#18181B; --accent-ink:#FAC0B2;
+  --accent-soft:#43160C; --accent-soft-text:#FBDBD4;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg-page);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--font-display);font-weight:700;line-height:1.15;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:28px} h2{font-size:19px} h3{font-size:16px}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent-ink);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--text-2)} .faint{color:var(--text-3)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* barra de demostración */
+.demo{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding:8px 16px;background:var(--bg-sunk);border-bottom:1px solid var(--border);font-size:13px;color:var(--text-2)}
+.demo b{color:var(--text)}
+.tema-sw{display:inline-flex;background:var(--bg-surface);border:1px solid var(--border-strong);border-radius:999px;padding:2px}
+.tema-sw label{position:relative}
+.tema-sw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.tema-sw span{display:block;padding:5px 12px;border-radius:999px;font-weight:600;font-size:13px;color:var(--text-2)}
+.tema-sw input:checked+span{background:var(--accent);color:var(--accent-on)}
+.tema-sw input:focus-visible+span{outline:2px solid var(--accent-ink);outline-offset:2px}
+
+/* estructura */
+.shell{display:grid;grid-template-columns:1fr;min-height:calc(100vh - 44px)}
+.side{display:none}
+.main{min-width:0;padding:16px 16px 96px}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(4,1fr);background:var(--bg-surface);border-top:1px solid var(--border);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+.tab{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border:0;background:none;border-radius:10px;font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer}
+.tab[aria-current="page"]{color:var(--accent-ink)}
+.tab[aria-current="page"] svg{stroke-width:2.4}
+.badge{position:absolute;top:2px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--bad-bar);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+@media (min-width:900px){
+  .shell{grid-template-columns:248px 1fr}
+  .side{display:flex;flex-direction:column;gap:20px;position:sticky;top:0;align-self:start;height:100vh;padding:24px 16px;border-right:1px solid var(--border);background:var(--bg-surface)}
+  .main{padding:32px 40px 48px}
+  .tabs{display:none}
+  .topbar .brand-sm{display:none}
+  h1{font-size:32px}
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .wm{font-family:var(--font-display);font-weight:700;font-size:22px;line-height:1;letter-spacing:-.02em}
+.brand .by{display:block;font-family:var(--font-body);font-weight:500;font-size:11.5px;color:var(--text-3);letter-spacing:0;margin-top:3px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{position:relative;display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:0;border-radius:10px;background:none;font-weight:600;color:var(--text-2);cursor:pointer;text-align:left}
+.nav button:hover{background:var(--bg-sunk)}
+.nav button[aria-current="page"]{background:var(--accent-soft);color:var(--accent-soft-text)}
+.nav .badge{position:static;margin-left:auto}
+.doc{margin-top:auto;display:flex;align-items:center;gap:10px;padding-top:16px;border-top:1px solid var(--border)}
+.avatar{width:38px;height:38px;flex:none;border-radius:50%;background:var(--accent-soft);color:var(--accent-soft-text);display:grid;place-items:center;font-weight:700;font-size:14px}
+.doc .n{font-weight:600;line-height:1.2}.doc .e{font-size:13px;color:var(--text-2);line-height:1.2}
+
+/* tarjetas y controles */
+.card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r);padding:18px}
+.card.flat{background:var(--bg-sunk);border-color:transparent}
+.card h2{margin-bottom:12px}
+.head{display:flex;flex-direction:column;gap:6px}
+.head p{color:var(--text-2);max-width:60ch}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:10px;border:1px solid var(--border-strong);background:var(--bg-surface);font-weight:600;cursor:pointer;text-decoration:none}
+.btn:hover{background:var(--bg-sunk)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-on)}
+.btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+.btn.sm{min-height:36px;padding:0 12px;font-size:14px}
+.btn.icon{padding:0;width:44px}
+.btn.icon.sm{width:36px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent-ink);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:600;line-height:1.6;white-space:nowrap}
+.pill.soft{background:var(--accent-soft);color:var(--accent-soft-text)}
+.pill.ok{background:var(--ok-bg);color:var(--ok-text)}
+.pill.warn{background:var(--warn-bg);color:var(--warn-text)}
+.pill.bad{background:var(--bad-bg);color:var(--bad-text)}
+.pill.neutral{background:var(--bg-sunk);color:var(--text-2)}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:8px;background:var(--bg-sunk);font-size:13px;color:var(--text-2)}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.lbl{font-size:13px;font-weight:600;color:var(--text-2)}
+.lbl .opt{font-weight:400;color:var(--text-3)}
+.in,select.in,textarea.in{width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--border-strong);border-radius:10px;background:var(--bg-surface);font-size:16px}
+textarea.in{min-height:96px;resize:vertical;line-height:1.5}
+.in::placeholder{color:var(--text-3)}
+.in[readonly],.in:disabled{background:var(--bg-sunk);color:var(--text-2)}
+.hint{font-size:13px;color:var(--text-2)}
+.row2{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.stack{display:flex;flex-direction:column;gap:14px}
+fieldset{border:0;padding:0;margin:0;min-width:0}
+legend{padding:0;margin-bottom:6px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.opts label{position:relative}
+.opts input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.opts span{display:flex;align-items:center;justify-content:center;text-align:center;min-height:44px;padding:8px 10px;border:1px solid var(--border-strong);border-radius:10px;background:var(--bg-surface);font-weight:600;font-size:14px;color:var(--text-2)}
+.opts input:checked+span{border-color:var(--accent-ink);background:var(--accent-soft);color:var(--accent-soft-text);box-shadow:inset 0 0 0 1px var(--accent-ink)}
+.opts input:focus-visible+span{outline:2px solid var(--accent-ink);outline-offset:2px}
+.err{color:var(--bad-text);background:var(--bad-bg);padding:10px 12px;border-radius:10px;font-weight:500}
+
+/* login */
+.login{min-height:calc(100vh - 44px);display:grid;grid-template-columns:1fr;align-items:center;gap:24px;padding:24px 16px;max-width:1040px;margin:0 auto}
+.login .ill{max-width:420px;width:100%;justify-self:center}
+.login form{display:flex;flex-direction:column;gap:16px;max-width:400px;width:100%;justify-self:center}
+.login .promise{font-size:17px;color:var(--text-2);max-width:34ch}
+@media (min-width:900px){.login{grid-template-columns:1.1fr 1fr;gap:56px}.login .ill{justify-self:start}}
+
+/* búsqueda */
+.search{display:grid;grid-template-columns:96px 1fr;gap:10px}
+.plist{display:flex;flex-direction:column;gap:10px;list-style:none;margin:0;padding:0}
+.pbtn{display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r);text-align:left;cursor:pointer}
+.pbtn:hover{border-color:var(--border-strong);background:var(--bg-sunk)}
+.pbtn .who{flex:1;min-width:0}
+.pbtn .who b{display:block;font-weight:600}
+.pbtn .who span{font-size:13px;color:var(--text-2)}
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:28px 16px}
+.empty svg{width:150px;max-width:60%;height:auto}
+
+/* ficha */
+.pfile{display:flex;flex-direction:column;gap:14px}
+.pfile .top{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.pfile .id{display:flex;flex-direction:column;gap:4px;min-width:0}
+.pfile .meta{display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--text-2);font-size:14px}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.grid-ficha{display:grid;grid-template-columns:1fr;gap:20px;grid-template-areas:"ant" "tl" "adj"}
+.grid-ficha>*{min-width:0}
+.a-ant{grid-area:ant}.a-tl{grid-area:tl}.a-adj{grid-area:adj}
+@media (min-width:900px){.grid-ficha{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);grid-template-areas:"tl ant" "tl adj";align-items:start}}
+.ant{display:flex;flex-direction:column;gap:12px;margin:0}
+.ant div{display:flex;flex-direction:column;gap:5px}
+.ant dt{font-size:13px;font-weight:600;color:var(--text-2)}
+.ant dd{margin:0;display:flex;flex-wrap:wrap;gap:6px}
+.tl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;position:relative}
+.tl li{position:relative;padding-left:26px}
+.tl li::before{content:"";position:absolute;left:5px;top:22px;bottom:-20px;width:2px;background:var(--border)}
+.tl li:last-child::before{display:none}
+.tl li::after{content:"";position:absolute;left:0;top:14px;width:12px;height:12px;border-radius:50%;background:var(--bg-surface);border:3px solid var(--accent-ink)}
+.tl article{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.tl .ln{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.tl time{font-weight:600}
+.tl details summary{cursor:pointer;color:var(--accent-ink);font-weight:600;padding:4px 0}
+.tl .sec{margin-top:8px;display:flex;flex-direction:column;gap:2px}
+.tl .sec b{font-size:13px;color:var(--text-2)}
+.tl .thumbs{display:flex;flex-wrap:wrap;gap:8px}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px}
+.fig{display:flex;flex-direction:column;gap:6px;background:none;border:0;padding:0;text-align:left;cursor:pointer;min-width:0}
+.fig .im{aspect-ratio:4/3;width:100%;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#0E0E10}
+.fig .im svg,.fig .im img{display:block;width:100%;height:100%;object-fit:cover}
+.fig span{font-size:13px;line-height:1.3;color:var(--text-2)}
+.thumb{width:56px;height:42px;border-radius:8px;overflow:hidden;border:1px solid var(--border);padding:0;background:#0E0E10;cursor:pointer}
+.thumb svg,.thumb img{display:block;width:100%;height:100%;object-fit:cover}
+
+/* registrar */
+.reg{display:grid;grid-template-columns:1fr;gap:20px;align-items:start}
+.reg>*{min-width:0}
+.reg .col{display:flex;flex-direction:column;gap:20px}
+@media (min-width:900px){.reg{grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr)}.reg aside{position:sticky;top:24px}}
+.calc{display:flex;flex-direction:column;gap:14px}
+.calc .l{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.calc .big{font-family:var(--font-display);font-size:30px;font-weight:700;letter-spacing:-.02em}
+.calc hr{border:0;border-top:1px solid var(--border);margin:0;width:100%}
+.sec-edit{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-page)}
+.sec-edit .h{display:flex;gap:8px;align-items:center}
+.up{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.up .prev{position:relative}
+.up .prev .thumb{width:72px;height:56px}
+.up .prev button.x{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;border:1px solid var(--border-strong);background:var(--bg-surface);display:grid;place-items:center;cursor:pointer;padding:0}
+
+/* resumen */
+.mnav{display:flex;align-items:center;gap:8px}
+.mnav .cur{font-family:var(--font-display);font-weight:700;font-size:20px;min-width:9.5ch;text-align:center;text-transform:capitalize}
+.ledger{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+.ledger>div{padding:0 14px;border-left:1px solid var(--border);min-width:0}
+.ledger>div:first-child{padding-left:0;border-left:0}
+.ledger .v{font-family:var(--font-display);font-size:22px;font-weight:700;letter-spacing:-.02em;overflow-wrap:anywhere}
+.ledger .k{font-size:13px;color:var(--text-2)}
+@media (min-width:640px){.ledger .v{font-size:30px}}
+.bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--bg-sunk);border:1px solid var(--border)}
+.bar i{display:block;height:100%}
+.bar .c{background:var(--ok-bar)}.bar .p{background:var(--warn-bar)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--text-2)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+.cent{display:flex;flex-direction:column;gap:12px}
+.cent .rowc{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.cent .rowc .k{font-size:12.5px;color:var(--text-2)}
+.cent .rowc .v{font-weight:700;font-size:16px}
+.cent .nm{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;justify-content:space-between}
+.cent .nm b{font-family:var(--font-display);font-size:17px}
+@media (min-width:900px){
+  .cent{display:grid;grid-template-columns:minmax(200px,1.4fr) minmax(0,2fr) minmax(140px,1fr);align-items:center;gap:16px}
+  .cent .bar{grid-column:auto}
+}
+.cent .barw{display:flex;flex-direction:column;gap:6px}
+.detail summary{cursor:pointer;color:var(--accent-ink);font-weight:600;padding:4px 0}
+.dl{width:100%;border-collapse:collapse;font-size:14px}
+.dl th{font-weight:600;color:var(--text-2);text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:13px}
+.dl td{padding:8px;border-bottom:1px solid var(--border);vertical-align:top}
+.dl td.r,.dl th.r{text-align:right}
+.tw{overflow-x:auto}
+
+/* alertas */
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.fchip{min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--border-strong);background:var(--bg-surface);font-weight:600;font-size:14px;color:var(--text-2);cursor:pointer}
+.fchip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-ink);color:var(--accent-soft-text)}
+.al{display:flex;flex-direction:column;gap:12px;list-style:none;margin:0;padding:0}
+.al li{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px}
+.al .t{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 12px;align-items:flex-start}
+.al .t b{font-size:16px;font-weight:600}
+.al .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.al .nums .k{font-size:12.5px;color:var(--text-2)}
+.al .nums .v{font-weight:700}
+.payform{border-top:1px dashed var(--border-strong);padding-top:14px;display:flex;flex-direction:column;gap:14px}
+.sum-strip{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center}
+
+/* modal y aviso */
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(24,24,27,.6);display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
+.dialog{width:100%;max-width:640px;margin:auto;background:var(--bg-surface);border-radius:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px;padding:16px}
+.dialog .bar-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.paper{background:var(--paper-bg);color:var(--paper-ink);border:1px solid var(--paper-line);border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:14px;font-size:14.5px}
+.paper .hd{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--paper-ink);padding-bottom:10px}
+.paper h3{font-size:18px}
+.paper .s b{display:block;font-size:12.5px}
+.paper .sign{margin-top:24px;width:220px;border-top:1px solid var(--paper-ink);padding-top:4px;font-size:13px}
+.lightbox .im{aspect-ratio:4/3;width:100%;border-radius:10px;overflow:hidden;background:#0E0E10}
+.lightbox .im svg,.lightbox .im img{display:block;width:100%;height:100%;object-fit:contain}
+.toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;max-width:calc(100vw - 32px);background:var(--text);color:var(--bg-page);padding:12px 18px;border-radius:12px;font-weight:600;box-shadow:var(--shadow)}
+@media (min-width:900px){.toast{bottom:32px}}
+@media (prefers-reduced-motion:no-preference){
+  .toast{animation:up .25s ease-out}
+  @keyframes up{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+}
+svg.ic{flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+</style>
+
+<div class="demo">
+  <span><b>Prototipo con datos ficticios.</b> Ver Ronda como:</span>
+  <span class="tema-sw" role="radiogroup" aria-label="Tema por especialidad">
+    <label><input type="radio" name="tema" value="internista" checked><span>Internista / general</span></label>
+    <label><input type="radio" name="tema" value="pediatria"><span>Pediatría</span></label>
+  </span>
+</div>
+<div id="app"></div>
+<div id="overlay-root"></div>
+<div id="toast-root" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* ---------- utilidades ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nf=new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
+const usd=n=>'$'+nf.format(n), bsf=n=>'Bs '+nf.format(n);
+const r2=n=>Math.round(n*100)/100;
+const MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const MESL=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const TODAY='2026-09-29', TASA=286.40;
+const fdate=d=>{const [y,m,dd]=d.split('-').map(Number);return dd+' '+MES[m-1]+' '+y};
+const mlabel=k=>{const [y,m]=k.split('-').map(Number);return MESL[m-1]+' '+y};
+const daysAgo=d=>Math.round((new Date(TODAY)-new Date(d))/864e5);
+const METODO={pm:'Pago móvil (Bs)',usd:'Divisa en efectivo',tr:'Transferencia',otro:'Otro'};
+
+const IC={
+ search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+ bell:'<path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/>',
+ file:'<path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8zM14 3v5h5M9 13h6M9 17h6"/>',
+ image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>',
+ printer:'<path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+ left:'<path d="M15 18l-6-6 6-6"/>', right:'<path d="M9 18l6-6-6-6"/>',
+ check:'<path d="M20 6L9 17l-5-5"/>', x:'<path d="M18 6L6 18M6 6l12 12"/>',
+ building:'<path d="M3 21h18M5 21V7l7-4 7 4v14M10 21v-4h4v4M9 9h.01M15 9h.01M9 13h.01M15 13h.01"/>',
+ out:'<path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>',
+ clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+ user:'<path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>'
+};
+const ic=(n,s=20)=>`<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
+
+/* ---------- ilustración por tema ---------- */
+function ill(kind){
+  const ped=S.theme==='pediatria';
+  if(kind==='hero'){
+    return ped?`<svg class="ill" viewBox="0 0 360 260" role="img" aria-label="Ilustración de una carita sonriente rodeada de formas suaves">
+      <path d="M52 140C34 78 98 26 170 36c72 10 142 32 142 104 0 74-80 104-150 98-62-5-92-38-110-98z" fill="var(--accent-soft)"/>
+      <circle cx="276" cy="58" r="26" fill="var(--accent)"/>
+      <circle cx="170" cy="138" r="54" fill="var(--bg-surface)" stroke="var(--accent-ink)" stroke-width="4"/>
+      <circle cx="150" cy="128" r="5" fill="var(--accent-ink)"/><circle cx="190" cy="128" r="5" fill="var(--accent-ink)"/>
+      <path d="M146 154q24 24 48 0" fill="none" stroke="var(--accent-ink)" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="136" cy="150" r="8" fill="var(--accent-soft)"/><circle cx="204" cy="150" r="8" fill="var(--accent-soft)"/>
+      <circle cx="70" cy="70" r="7" fill="var(--accent)"/><circle cx="312" cy="176" r="9" fill="var(--accent-ink)"/><circle cx="96" cy="214" r="6" fill="var(--accent)"/>
+      <path d="M230 214q14-16 28 0t28 0" fill="none" stroke="var(--accent-ink)" stroke-width="4" stroke-linecap="round"/>
+    </svg>`:`<svg class="ill" viewBox="0 0 360 260" role="img" aria-label="Ilustración lineal de un informe médico con un trazo de electrocardiograma y un corte de OCT">
+      <rect x="82" y="26" width="176" height="208" rx="12" fill="var(--bg-surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+      <path d="M104 58h70M104 76h112M104 94h90M104 188h112M104 206h60" stroke="var(--border-strong)" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M16 140h84l14-30 18 62 16-44 12 12h180" fill="none" stroke="var(--accent-ink)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="286" cy="68" r="38" fill="var(--accent-soft)" stroke="var(--accent-ink)" stroke-width="1.5"/>
+      <circle cx="286" cy="68" r="22" fill="none" stroke="var(--accent-ink)" stroke-width="1.5"/>
+      <circle cx="286" cy="68" r="8" fill="var(--accent-ink)"/>
+      <path d="M40 40h12M46 34v12M310 210h12M316 204v12" stroke="var(--border-strong)" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>`;
+  }
+  return ped?`<svg viewBox="0 0 160 120" role="img" aria-label="Ilustración de una carita feliz"><path d="M20 62C12 30 50 8 86 14c38 6 62 22 58 54-4 34-42 48-74 44-30-4-42-24-50-50z" fill="var(--accent-soft)"/><circle cx="82" cy="62" r="28" fill="var(--bg-surface)" stroke="var(--accent-ink)" stroke-width="3"/><circle cx="72" cy="57" r="3" fill="var(--accent-ink)"/><circle cx="92" cy="57" r="3" fill="var(--accent-ink)"/><path d="M70 70q12 12 24 0" fill="none" stroke="var(--accent-ink)" stroke-width="3" stroke-linecap="round"/><circle cx="132" cy="24" r="8" fill="var(--accent)"/></svg>`
+  :`<svg viewBox="0 0 160 120" role="img" aria-label="Ilustración lineal de una lista con marca de verificación"><rect x="46" y="14" width="68" height="92" rx="8" fill="var(--bg-surface)" stroke="var(--border-strong)" stroke-width="1.5"/><path d="M60 38h40M60 54h30" stroke="var(--border-strong)" stroke-width="1.5" stroke-linecap="round"/><circle cx="104" cy="88" r="16" fill="var(--accent-soft)" stroke="var(--accent-ink)" stroke-width="1.5"/><path d="M96 88l6 6 10-12" fill="none" stroke="var(--accent-ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+function mark(){return `<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="10.5" fill="none" stroke="var(--accent-ink)" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="48 18" transform="rotate(-60 15 15)"/><circle cx="15" cy="15" r="3.6" fill="var(--accent-ink)"/></svg>`}
+function brand(){return `<span class="brand">${mark()}<span class="wm">Ronda<span class="by">by AutomStack</span></span></span>`}
+
+/* imágenes de estudios (ejemplos dibujados) */
+function art(k){
+  const bg='<rect width="160" height="120" fill="#0E0E10"/>';
+  if(k==='fundus') return `<svg viewBox="0 0 160 120" role="img" aria-label="Fondo de ojo de ejemplo">${bg}<circle cx="80" cy="60" r="54" fill="#5B1E10"/><circle cx="80" cy="60" r="46" fill="#8A3A1C"/><circle cx="80" cy="60" r="34" fill="#B4562B" opacity=".85"/><circle cx="112" cy="58" r="11" fill="#F0D9A0"/><circle cx="112" cy="58" r="6" fill="#FBEFC8"/><circle cx="72" cy="64" r="6" fill="#6E2812"/><g fill="none" stroke="#5A170C" stroke-width="2" stroke-linecap="round"><path d="M112 58C96 40 78 30 56 30"/><path d="M112 58C98 76 80 88 58 90"/><path d="M112 58C92 56 80 50 50 52"/><path d="M112 58C94 64 78 74 48 72"/></g><g fill="#F4D77A"><circle cx="62" cy="58" r="2"/><circle cx="66" cy="72" r="1.6"/><circle cx="60" cy="68" r="1.4"/></g></svg>`;
+  if(k==='oct') return `<svg viewBox="0 0 160 120" role="img" aria-label="OCT macular de ejemplo">${bg}<g fill="none" stroke-linecap="round"><path d="M10 40Q50 38 72 52Q80 58 88 52Q110 38 150 40" stroke="#E8E8E8" stroke-width="4"/><path d="M10 52Q50 50 74 62Q80 66 86 62Q110 50 150 52" stroke="#9A9A9A" stroke-width="7"/><path d="M10 66Q50 64 76 72Q80 74 84 72Q110 64 150 66" stroke="#C9C9C9" stroke-width="5"/><path d="M10 76Q50 74 78 80Q80 81 82 80Q110 74 150 76" stroke="#6A6A6A" stroke-width="6"/><path d="M10 88Q80 90 150 88" stroke="#3A3A3A" stroke-width="8"/></g><ellipse cx="66" cy="58" rx="7" ry="3" fill="#0E0E10" opacity=".7"/></svg>`;
+  if(k==='rm') return `<svg viewBox="0 0 160 120" role="img" aria-label="Resonancia magnética cerebral de ejemplo">${bg}<ellipse cx="80" cy="60" rx="44" ry="50" fill="#3C3C3C"/><ellipse cx="80" cy="60" rx="38" ry="44" fill="#8E8E8E"/><ellipse cx="80" cy="60" rx="30" ry="36" fill="#B5B5B5"/><path d="M80 34v52" stroke="#5A5A5A" stroke-width="1.5"/><path d="M70 50q-8 6-6 14 6 4 10-2zM90 50q8 6 6 14-6 4-10-2z" fill="#1E1E1E"/><g fill="none" stroke="#6E6E6E" stroke-width="1.5"><path d="M56 48q-6 10 0 20M104 48q6 10 0 20M62 78q18 8 36 0"/></g></svg>`;
+  if(k==='rx') return `<svg viewBox="0 0 160 120" role="img" aria-label="Radiografía de tórax de ejemplo">${bg}<path d="M52 20q-24 6-22 50 2 30 24 34 14-4 22-8V28q-10-6-24-8zM108 20q24 6 22 50-2 30-24 34-14-4-22-8V28q10-6 24-8z" fill="#2A2A2A"/><path d="M80 14v96" stroke="#D4D4D4" stroke-width="5"/><g fill="none" stroke="#B0B0B0" stroke-width="2"><path d="M80 30q-28 -4 -46 6M80 44q-30 -2 -50 10M80 58q-30 2 -50 14M80 72q-26 4 -44 16"/><path d="M80 30q28 -4 46 6M80 44q30 -2 50 10M80 58q30 2 50 14M80 72q26 4 44 16"/></g><path d="M74 62q-8 10 -2 24 8 4 12-4 4-14-2-20z" fill="#9C9C9C" opacity=".8"/></svg>`;
+  return `<svg viewBox="0 0 160 120">${bg}</svg>`;
+}
+const adjImg=(a)=>a.src?`<img src="${a.src}" alt="${esc(a.label)}">`:art(a.k);
+
+/* ---------- datos ficticios ---------- */
+const P=(m,rec,cur,tasa)=>({m,rec,cur,tasa});
+const CENTROS=[{id:'c1',n:'Centro Médico Valle Alto',pct:65},{id:'c2',n:'Clínica Santa Elena',pct:60},{id:'c3',n:'Policlínica Los Robles',pct:55}];
+const DB={
+ internista:{
+  doctor:'Dr. Andrés Villalobos',esp:'Internista y neuroftalmólogo',ini:'AV',fee:40,centros:CENTROS,
+  pacientes:[
+   {id:'p1',n:'María Elena Contreras',ced:'V-12.345.678',edad:'58 años',sexo:'Femenino',contacto:'0414-555-0142',ant:[['Personales',['Hipertensión arterial','Diabetes tipo 2']],['Alergias',['Penicilina']],['Medicación',['Losartán 50 mg','Metformina 850 mg']],['Familiares',['Madre con glaucoma']]]},
+   {id:'p2',n:'Carlos Alberto Medina',ced:'V-9.876.543',edad:'67 años',sexo:'Masculino',contacto:'0424-555-0198',ant:[['Personales',['Hipertensión arterial','Dislipidemia']],['Alergias',['Ninguna conocida']],['Medicación',['Amlodipino 5 mg','Atorvastatina 20 mg']],['Familiares',['Padre con ACV']]]},
+   {id:'p3',n:'Luisa Fernanda Ortega',ced:'V-18.402.155',edad:'34 años',sexo:'Femenino',contacto:'0412-555-0136',ant:[['Personales',['Migraña con aura']],['Alergias',['Ninguna conocida']],['Medicación',['Sin tratamiento habitual']],['Familiares',['Madre con migraña']]]},
+   {id:'p4',n:'Rafael Antonio Gil',ced:'E-84.221.093',edad:'72 años',sexo:'Masculino',contacto:'0416-555-0121',ant:[['Personales',['EPOC leve','Ex fumador']],['Alergias',['Sulfas']],['Medicación',['Salbutamol a demanda']],['Familiares',['Sin datos']]]}
+  ],
+  consultas:[
+   {id:'i1',pid:'p1',d:'2026-09-18',c:'c1',ref:50,pct:65,pagos:[],evo:{t:'informe',motivo:'Disminución de agudeza visual en ojo derecho',s:[['Enfermedad actual','Visión borrosa en ojo derecho desde hace 2 semanas, sin dolor ni fotopsias. Glicemias en ayunas entre 130 y 160 mg/dl.'],['Examen físico general','TA 138/86 mmHg, FC 72 lpm, peso 74 kg. Sin edemas.'],['Examen neuro-oftalmológico','Agudeza visual OD 20/40, OI 20/25. Pupilas isocóricas y reactivas, sin defecto pupilar aferente. Fondo de ojo OD con exudados duros perimaculares y edema macular leve. OI sin hallazgos.'],['Impresión diagnóstica','Edema macular diabético leve en OD. Diabetes tipo 2 con control regular.'],['Plan','OCT macular bilateral, HbA1c y perfil lipídico. Control en 4 semanas con resultados.']],adj:[{k:'fundus',label:'Fondo de ojo OD'},{k:'oct',label:'OCT macular OD'}]}},
+   {id:'i11',pid:'p1',d:'2026-09-02',c:'c2',ref:40,pct:60,pagos:[P('otro',24,'USD')],evo:{t:'nota',motivo:'Control de tensión arterial',txt:'Se ajusta losartán a 50 mg cada 12 h por cifras elevadas en casa. Traer registro de TA en la próxima cita.',adj:[]}},
+   {id:'i2',pid:'p1',d:'2026-08-21',c:'c1',ref:40,pct:65,pagos:[P('pm',7256.60,'Bs',279.10)],evo:{t:'nota',motivo:'Control de glicemia',txt:'TA 130/80. Se mantiene el esquema. Refuerzo de dieta y actividad física.',adj:[]}},
+   {id:'i3',pid:'p1',d:'2026-06-10',c:'c2',ref:40,pct:60,pagos:[P('usd',24,'USD')],evo:{t:'informe',motivo:'Chequeo general anual',s:[['Motivo y antecedentes','Control anual. Sin síntomas nuevos.'],['Examen físico','TA 135/85, FC 70, IMC 29. Cardiopulmonar sin hallazgos. Abdomen blando y depresible.'],['Impresión y plan','HTA y DM2 en control aceptable. Laboratorio de rutina y control en 3 meses.']],adj:[]}},
+   {id:'i4',pid:'p2',d:'2026-09-24',c:'c3',ref:40,pct:55,pagos:[P('pm',6300.80,'Bs',286.40)],evo:{t:'nota',motivo:'Resultado de resonancia',txt:'RM sin lesiones agudas. Continuar tratamiento y control en 3 meses.',adj:[]}},
+   {id:'i5',pid:'p2',d:'2026-09-09',c:'c3',ref:60,pct:55,pagos:[P('pm',4000,'Bs',284.20)],evo:{t:'informe',motivo:'Cefalea persistente y visión doble',s:[['Enfermedad actual','Cefalea holocraneal de 10 días y diplopía horizontal que empeora al mirar a la izquierda.'],['Examen neuro-oftalmológico','Limitación de la abducción del ojo izquierdo. Papilas sin edema. Campos por confrontación normales.'],['Impresión diagnóstica','Paresia del VI par craneal izquierdo. Descartar causa vascular.'],['Plan','RM cerebral con angiografía y laboratorio. Control con resultados.']],adj:[{k:'rm',label:'RM cerebral axial T2'},{k:'rm',label:'RM cerebral coronal T1'}]}},
+   {id:'i10',pid:'p2',d:'2026-08-19',c:'c1',ref:40,pct:65,pagos:[P('pm',7256.60,'Bs',279.10)],evo:{t:'nota',motivo:'Control de HTA',txt:'TA 128/78. Continuar amlodipino. Se solicita perfil lipídico.',adj:[]}},
+   {id:'i6',pid:'p3',d:'2026-09-25',c:null,ref:60,pct:100,pagos:[P('usd',60,'USD')],evo:{t:'informe',motivo:'Escotoma centelleante recurrente',s:[['Enfermedad actual','Tres episodios en el último mes de luces en zigzag en el campo visual izquierdo, de 20 minutos, seguidos de cefalea.'],['Examen neuro-oftalmológico','Agudeza visual 20/20 bilateral. Pupilas normales. Fondo de ojo y OCT de nervio óptico sin alteraciones.'],['Impresión diagnóstica','Migraña con aura típica.'],['Plan','Diario de crisis, higiene del sueño y control en 2 meses.']],adj:[{k:'oct',label:'OCT de nervio óptico'}]}},
+   {id:'i7',pid:'p3',d:'2026-08-14',c:null,ref:40,pct:100,pagos:[P('tr',11164,'Bs',279.10)],evo:{t:'nota',motivo:'Control de migraña',txt:'Sin crisis en 3 semanas con medidas de higiene del sueño. Sin cambios de tratamiento.',adj:[]}},
+   {id:'i12',pid:'p3',d:'2026-08-05',c:'c1',ref:40,pct:65,pagos:[],evo:{t:'informe',motivo:'Cefalea con aura visual',s:[['Enfermedad actual','Cefalea pulsátil precedida por alteraciones visuales transitorias.'],['Examen físico','Exploración neurológica sin déficit.'],['Impresión y plan','Migraña con aura. Medidas generales y control en 1 semana.']],adj:[]}},
+   {id:'i8',pid:'p4',d:'2026-09-15',c:'c2',ref:40,pct:60,pagos:[],evo:{t:'informe',motivo:'Control de EPOC y disnea de esfuerzo',s:[['Enfermedad actual','Disnea al subir escaleras, sin fiebre ni cambios en el esputo.'],['Examen físico','SatO2 93% al aire ambiente. Sibilancias espiratorias leves. Sin edemas.'],['Impresión y plan','EPOC leve estable. Revisión de técnica inhalatoria y espirometría de control.']],adj:[]}},
+   {id:'i9',pid:'p4',d:'2026-08-27',c:'c2',ref:40,pct:60,pagos:[P('pm',6830.40,'Bs',284.60)],evo:{t:'nota',motivo:'Revisión de espirometría',txt:'Obstrucción leve estable. Refuerzo de técnica inhalatoria.',adj:[]}}
+  ]
+ },
+ pediatria:{
+  doctor:'Dra. Marisol Peña',esp:'Pediatra',ini:'MP',fee:35,centros:CENTROS,
+  pacientes:[
+   {id:'q1',n:'Sofía Valentina Marcano',ced:'V-31.987.220',edad:'6 años',sexo:'Femenino',contacto:'Repr.: Mariana Marcano · 0412-555-0177',ant:[['Personales',['Asma leve intermitente']],['Alergias',['Ninguna conocida']],['Vacunas',['Esquema al día']],['Nacimiento',['A término','3,4 kg']]]},
+   {id:'q2',n:'Mateo Alejandro Rivas',ced:'V-34.556.789',edad:'2 años',sexo:'Masculino',contacto:'Repr.: Daniel Rivas · 0424-555-0163',ant:[['Personales',['Sin patología crónica']],['Alergias',['Ninguna conocida']],['Vacunas',['Esquema al día']],['Nacimiento',['A término','3,1 kg']]]},
+   {id:'q3',n:'Camila Andrea Duarte',ced:'V-30.221.998',edad:'9 años',sexo:'Femenino',contacto:'Repr.: Rosa Duarte · 0416-555-0118',ant:[['Personales',['Dolor abdominal recurrente en estudio']],['Alergias',['Ninguna conocida']],['Vacunas',['Esquema al día']],['Familiares',['Padre con gastritis']]]},
+   {id:'q4',n:'Thiago Nicolás Bravo',ced:'V-35.410.002',edad:'11 meses',sexo:'Masculino',contacto:'Repr.: Génesis Bravo · 0414-555-0104',ant:[['Personales',['Bronquiolitis a los 4 meses']],['Alergias',['Ninguna conocida']],['Vacunas',['Esquema al día']],['Nacimiento',['37 semanas','2,9 kg']]]}
+  ],
+  consultas:[
+   {id:'k1',pid:'q1',d:'2026-09-16',c:'c1',ref:35,pct:65,pagos:[P('pm',6440.53,'Bs',283.10)],evo:{t:'informe',motivo:'Tos nocturna y sibilancias',s:[['Enfermedad actual','Tos seca nocturna desde hace 5 días y sibilancias con el ejercicio. Sin fiebre.'],['Examen físico','Peso 21 kg, talla 115 cm, SatO2 97%. Sibilancias espiratorias difusas leves. Sin tiraje.'],['Impresión diagnóstica','Exacerbación leve de asma.'],['Plan','Salbutamol con aerocámara, 2 inhalaciones cada 6 h por 5 días. Control en 1 semana o antes si hay dificultad para respirar.']],adj:[{k:'rx',label:'Radiografía de tórax PA'}]}},
+   {id:'k2',pid:'q1',d:'2026-08-12',c:'c2',ref:35,pct:60,pagos:[P('usd',21,'USD')],evo:{t:'nota',motivo:'Control de asma',txt:'Sin crisis en el último mes. Se mantiene el plan de rescate y se repasa el uso de la aerocámara con la mamá.',adj:[]}},
+   {id:'k3',pid:'q2',d:'2026-09-23',c:'c3',ref:35,pct:55,pagos:[],evo:{t:'informe',motivo:'Control de niño sano, 2 años',s:[['Crecimiento','Peso 12,4 kg y talla 87 cm, ambos en percentil 50.'],['Desarrollo','Camina y corre, dice frases de dos palabras y juega con otros niños.'],['Alimentación y sueño','Come de todo. Duerme 11 horas con una siesta.'],['Indicaciones','Refuerzo de hábitos y control a los 3 años. Esquema de vacunas al día.']],adj:[]}},
+   {id:'k4',pid:'q2',d:'2026-08-26',c:'c1',ref:35,pct:65,pagos:[P('pm',6474.65,'Bs',284.60)],evo:{t:'nota',motivo:'Cuadro gripal leve',txt:'Afebril. Lavados nasales y vigilancia de signos de alarma.',adj:[]}},
+   {id:'k5',pid:'q3',d:'2026-09-11',c:null,ref:45,pct:100,pagos:[P('usd',45,'USD')],evo:{t:'informe',motivo:'Dolor abdominal recurrente',s:[['Enfermedad actual','Dolor alrededor del ombligo desde hace tres meses, sin vómitos ni fiebre, mejora al evacuar.'],['Examen físico','Abdomen blando, sin masas ni dolor localizado. Peso estable.'],['Impresión diagnóstica','Dolor abdominal funcional. Descartar parasitosis.'],['Plan','Coproparasitológico, dieta con más fibra y control con resultados.']],adj:[]}},
+   {id:'k6',pid:'q3',d:'2026-09-28',c:'c2',ref:35,pct:60,pagos:[P('tr',3000,'Bs',286.40)],evo:{t:'nota',motivo:'Resultado de coproparasitológico',txt:'Negativo. Continuar medidas dietéticas y control en un mes.',adj:[]}},
+   {id:'k7',pid:'q4',d:'2026-09-07',c:'c1',ref:35,pct:65,pagos:[],evo:{t:'informe',motivo:'Tos y respiración rápida',s:[['Enfermedad actual','Tos y congestión de 3 días, come menos que de costumbre.'],['Examen físico','FR 48 rpm, SatO2 96%, tiraje subcostal leve.'],['Impresión diagnóstica','Bronquiolitis leve.'],['Plan','Hidratación, lavados nasales y control en 48 horas. Signos de alarma explicados.']],adj:[{k:'rx',label:'Radiografía de tórax AP'}]}},
+   {id:'k8',pid:'q4',d:'2026-08-18',c:'c3',ref:35,pct:55,pagos:[],evo:{t:'nota',motivo:'Control de peso y talla',txt:'Ganancia adecuada. Alimentación complementaria bien tolerada.',adj:[]}}
+  ]
+ }
+};
+
+/* ---------- cálculos ---------- */
+const S={theme:'internista',route:'login',pid:null,month:null,fc:'all',pay:null,reg:null};
+const D=()=>DB[S.theme];
+const centro=id=>D().centros.find(c=>c.id===id);
+const paciente=id=>D().pacientes.find(p=>p.id===id);
+const payUsd=m=>{const r=parseFloat(m.rec)||0;if(m.cur==='Bs'){const t=parseFloat(m.tasa)||0;return t?r/t:0}return r};
+const corresponde=c=>r2(c.ref*c.pct/100);
+const cobrado=c=>r2(c.pagos.reduce((s,p)=>s+payUsd(p),0));
+const pendiente=c=>Math.max(0,r2(corresponde(c)-cobrado(c)));
+const estado=c=>pendiente(c)<0.01?'cobrado':(cobrado(c)>0?'parcial':'pendiente');
+const pendientes=()=>D().consultas.filter(c=>pendiente(c)>=0.01).sort((a,b)=>a.d<b.d?-1:1);
+const months=()=>[...new Set(D().consultas.map(c=>c.d.slice(0,7)))].sort();
+const lastVisit=p=>D().consultas.filter(c=>c.pid===p.id).map(c=>c.d).sort().pop();
+const statePill=c=>{const e=estado(c);return e==='cobrado'?'<span class="pill ok">Cobrado</span>':e==='parcial'?'<span class="pill warn">Cobro parcial</span>':'<span class="pill bad">Sin cobrar</span>'};
+
+/* ---------- vistas ---------- */
+function viewLogin(){
+  const ped=S.theme==='pediatria';
+  return `<main class="login">
+   <div class="stack" style="gap:20px">
+     ${ill('hero')}
+   </div>
+   <form id="f-login" class="stack" style="gap:18px">
+     ${brand()}
+     <h1>Todas tus consultas y cobros, en una sola ronda.</h1>
+     <p class="promise">${ped?'Historias clínicas de tus pacientes y lo que te corresponde de cada centro, sin cuadernos ni hojas sueltas.':'Historias clínicas de tus pacientes y lo que te corresponde de cada centro, sin cuadernos ni hojas sueltas.'}</p>
+     <div class="field"><label class="lbl" for="l-user">Correo o cédula</label><input class="in" id="l-user" value="medico@ejemplo.com" autocomplete="username"></div>
+     <div class="field"><label class="lbl" for="l-pass">Clave</label><input class="in" id="l-pass" type="password" value="prototipo" autocomplete="current-password"></div>
+     <button class="btn primary" type="submit">Entrar</button>
+     <p class="hint">Es un prototipo: cualquier dato te deja entrar y nada se guarda en un servidor.</p>
+   </form>
+  </main>`;
+}
+function shell(inner){
+  const n=pendientes().length, d=D();
+  const items=[['buscar','Pacientes','search'],['registrar','Registrar consulta','plus'],['resumen','Ingresos','chart'],['alertas','Por cobrar','bell']];
+  const cur=S.route==='ficha'?'buscar':S.route;
+  const navBtn=(it,tab)=>{const [r,l,i]=it;const lab=tab&&r==='registrar'?'Registrar':l;return `<button class="${tab?'tab':''}" data-act="go" data-to="${r}" ${cur===r?'aria-current="page"':''}>${ic(i,tab?22:20)}<span>${lab}</span>${r==='alertas'&&n?`<span class="badge" aria-label="${n} pendientes">${n}</span>`:''}</button>`};
+  return `<div class="shell">
+   <aside class="side" aria-label="Navegación">
+     ${brand()}
+     <nav class="nav">${items.map(i=>navBtn(i,false)).join('')}</nav>
+     <div class="doc"><span class="avatar" aria-hidden="true">${d.ini}</span><div style="min-width:0"><div class="n">${esc(d.doctor)}</div><div class="e">${esc(d.esp)}</div></div><button class="btn icon sm" data-act="logout" aria-label="Salir">${ic('out',18)}</button></div>
+   </aside>
+   <main class="main"><div class="wrap">
+     <div class="topbar"><span class="brand-sm">${brand()}</span><span class="brand-sm" style="display:flex;gap:8px;align-items:center"><span class="avatar" aria-hidden="true">${d.ini}</span><button class="btn icon sm" data-act="logout" aria-label="Salir">${ic('out',18)}</button></span></div>
+     ${inner}
+   </div></main>
+   <nav class="tabs" aria-label="Navegación principal">${items.map(i=>navBtn(i,true)).join('')}</nav>
+  </div>`;
+}
+const brandSmCss=document.createElement('style');
+brandSmCss.textContent='@media (min-width:900px){.topbar{display:none}}';
+document.head.appendChild(brandSmCss);
+
+/* 2. búsqueda por cédula */
+function viewBuscar(){
+  return `<div class="head"><h1>Pacientes</h1><p>Busca por cédula para abrir la historia clínica.</p></div>
+  <div class="card stack">
+    <div class="search">
+      <div class="field"><label class="lbl" for="s-pre">Tipo</label><select class="in" id="s-pre"><option value="V">V</option><option value="E">E</option></select></div>
+      <div class="field"><label class="lbl" for="s-ced">Número de cédula</label><input class="in num" id="s-ced" inputmode="numeric" autocomplete="off" placeholder="Ej. 12345678"></div>
+    </div>
+    <p class="hint" id="s-hint">${S.theme==='pediatria'?'Puedes buscar por la cédula del niño o la de su representante.':'Escribe al menos 3 dígitos.'}</p>
+  </div>
+  <section aria-live="polite"><h2 id="s-title" style="margin-bottom:12px">Últimos atendidos</h2><ul class="plist" id="s-list"></ul></section>`;
+}
+function searchList(){
+  const raw=$('#s-ced').value.replace(/\D/g,''), pre=$('#s-pre').value;
+  let list=D().pacientes.slice();
+  const title=$('#s-title'), ul=$('#s-list');
+  if(raw.length>=3){
+    list=list.filter(p=>p.ced.replace(/\D/g,'').includes(raw)&&(p.ced[0]===pre||true));
+    title.textContent=list.length?`${list.length} resultado${list.length>1?'s':''}`:'Sin resultados';
+  } else {title.textContent='Últimos atendidos';list.sort((a,b)=>lastVisit(b)<lastVisit(a)?-1:1)}
+  if(!list.length){ul.innerHTML=`<li class="card empty">${ill('ok')}<h3>No hay un paciente con esa cédula</h3><p class="muted">Revisa el número y el tipo. En la versión completa aquí podrás crear el paciente nuevo.</p></li>`;return}
+  ul.innerHTML=list.map(p=>`<li><button class="pbtn" data-act="ficha" data-pid="${p.id}"><span class="avatar" aria-hidden="true">${p.n.split(' ').map(w=>w[0]).slice(0,2).join('')}</span><span class="who"><b>${esc(p.n)}</b><span class="num">${p.ced} · ${p.edad} · última consulta ${fdate(lastVisit(p))}</span></span>${ic('right',18)}</button></li>`).join('');
+}
+
+/* 3. ficha del paciente */
+function viewFicha(){
+  const p=paciente(S.pid), cons=D().consultas.filter(c=>c.pid===p.id).sort((a,b)=>a.d<b.d?1:-1);
+  const adj=[];cons.forEach(c=>c.evo.adj.forEach((a,i)=>adj.push({...a,cid:c.id,i,d:c.d})));
+  const tl=cons.map(c=>{
+    const e=c.evo, cen=c.c?centro(c.c):null;
+    return `<li><article>
+      <div class="ln"><time class="num">${fdate(c.d)}</time><span class="pill ${e.t==='informe'?'soft':'neutral'}">${e.t==='informe'?'Informe completo':'Nota de control'}</span><span class="chip">${ic('building',14)}${cen?esc(cen.n):'Particular'}</span></div>
+      <h3>${esc(e.motivo)}</h3>
+      ${e.t==='informe'?`<details><summary>Leer informe</summary>${e.s.map(([t,x])=>`<div class="sec"><b>${esc(t)}</b><span>${esc(x)}</span></div>`).join('')}</details>`:`<p>${esc(e.txt)}</p>`}
+      ${e.adj.length?`<div class="thumbs">${e.adj.map((a,i)=>`<button class="thumb" data-act="img" data-id="${c.id}" data-i="${i}" aria-label="Ver ${esc(a.label)}">${adjImg(a)}</button>`).join('')}</div>`:''}
+      ${e.t==='informe'?`<div><button class="btn sm" data-act="informe" data-id="${c.id}">${ic('printer',16)}Informe para imprimir</button></div>`:''}
+    </article></li>`}).join('');
+  return `<div><button class="linkbtn" data-act="go" data-to="buscar">${ic('left',14)} Pacientes</button></div>
+  <section class="card pfile">
+    <div class="top">
+      <div class="id"><h1>${esc(p.n)}</h1><div class="meta num"><span>${p.ced}</span><span>${p.edad}</span><span>${p.sexo}</span><span>${esc(p.contacto)}</span></div></div>
+      <div class="acts"><button class="btn primary" data-act="nueva" data-pid="${p.id}">${ic('plus',18)}Nueva consulta</button></div>
+    </div>
+  </section>
+  <div class="grid-ficha">
+    <section class="card a-ant"><h2>Antecedentes</h2><dl class="ant">${p.ant.map(([k,v])=>`<div><dt>${k}</dt><dd>${v.map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</dd></div>`).join('')}</dl></section>
+    <section class="a-tl"><h2 style="margin-bottom:14px">Evolución</h2><ol class="tl">${tl}</ol></section>
+    <section class="card a-adj"><h2>Adjuntos</h2>${adj.length?`<div class="gal">${adj.map(a=>`<button class="fig" data-act="img" data-id="${a.cid}" data-i="${a.i}"><div class="im">${adjImg(a)}</div><span>${esc(a.label)}<br><span class="num faint">${fdate(a.d)}</span></span></button>`).join('')}</div>`:'<p class="muted">Aún no hay fotos de estudios. Puedes adjuntarlas al registrar una consulta.</p>'}</section>
+  </div>`;
+}
+
+/* pagos: componente compartido (registrar y por cobrar) */
+function newPay(){return {m:'pm',cur:'Bs',rec:'',tasa:TASA.toFixed(2),touched:false}}
+function payHTML(id,m){
+  const opts=[['pm','Pago móvil (Bs)'],['usd','Divisa en efectivo'],['tr','Transferencia'],['otro','Otro']];
+  const cs=m.m==='tr'||m.m==='otro';
+  return `<fieldset><legend class="lbl">Método de pago</legend><div class="opts">${opts.map(([v,l])=>`<label><input type="radio" name="${id}-m" value="${v}" ${m.m===v?'checked':''}><span>${l}</span></label>`).join('')}</div></fieldset>
+  <div class="row2">
+    ${cs?`<div class="field"><label class="lbl" for="${id}-cur">Moneda</label><select class="in" id="${id}-cur"><option value="Bs" ${m.cur==='Bs'?'selected':''}>Bolívares</option><option value="USD" ${m.cur==='USD'?'selected':''}>Dólares</option></select></div>`:''}
+    <div class="field"><label class="lbl" for="${id}-rec">Monto recibido (${m.cur==='Bs'?'Bs':'USD'})</label><input class="in num" id="${id}-rec" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(m.rec)}"></div>
+    ${m.cur==='Bs'?`<div class="field"><label class="lbl" for="${id}-tasa">Tasa BCV del día</label><input class="in num" id="${id}-tasa" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(m.tasa)}"></div>`:''}
+  </div>
+  <p class="hint" id="${id}-eq"></p>`;
+}
+function mountPay(id,m,getExp,onChange){
+  const box=$('#'+id+'-box');box.innerHTML=payHTML(id,m);
+  const suggest=()=>{if(m.touched)return;const e=getExp(),t=parseFloat(m.tasa)||0;m.rec=m.cur==='Bs'?(t?String(r2(e*t)):''):String(r2(e))};
+  const eq=()=>{const q=$('#'+id+'-eq');if(!q)return;q.textContent=m.cur==='Bs'?`Equivale a ${usd(payUsd(m))} a Bs ${nf.format(parseFloat(m.tasa)||0)} por dólar. Tasa de ejemplo del prototipo.`:'Se registra directamente en dólares.'};
+  if(!m.rec&&!m.touched)suggest();
+  box.innerHTML=payHTML(id,m);eq();
+  $$(`input[name="${id}-m"]`,box).forEach(r=>r.onchange=()=>{m.m=r.value;m.cur=r.value==='pm'?'Bs':r.value==='usd'?'USD':r.value==='tr'?'Bs':'USD';m.touched=false;m.rec='';mountPay(id,m,getExp,onChange);onChange&&onChange()});
+  const cur=$('#'+id+'-cur',box);if(cur)cur.onchange=()=>{m.cur=cur.value;m.touched=false;m.rec='';mountPay(id,m,getExp,onChange);onChange&&onChange()};
+  $('#'+id+'-rec',box).oninput=e=>{m.rec=e.target.value;m.touched=true;eq();onChange&&onChange()};
+  const ts=$('#'+id+'-tasa',box);if(ts)ts.oninput=e=>{m.tasa=e.target.value;if(!m.touched){suggest();$('#'+id+'-rec').value=m.rec}eq();onChange&&onChange()};
+  m.refresh=()=>{if(!m.touched){suggest();const r=$('#'+id+'-rec');if(r)r.value=m.rec}eq()};
+}
+
+/* 4. registrar consulta */
+function newReg(pid){return {pid:pid||D().pacientes[0].id,fecha:TODAY,centro:'',ref:D().fee,pct:100,noCobrado:false,pay:newPay(),tipo:'informe',motivo:'',secs:[{t:'Enfermedad actual',x:''},{t:'Examen físico',x:''},{t:'Impresión y plan',x:''}],nota:'',adj:[],err:''}}
+function regNums(){const R=S.reg;const pct=R.centro?(parseFloat(R.pct)||0):100;const ref=parseFloat(R.ref)||0;const cor=r2(ref*pct/100);const cob=R.noCobrado?0:r2(payUsd(R.pay));const pen=Math.max(0,r2(cor-cob));return {pct,ref,cor,cob,pen}}
+function viewRegistrar(){
+  const R=S.reg,d=D();
+  return `<div class="head"><h1>Registrar consulta</h1><p>Consulta, cobro y evolución en una sola pantalla.</p></div>
+  <div class="reg">
+   <div class="col">
+    <section class="card stack"><h2>Consulta</h2>
+      <div class="row2">
+        <div class="field"><label class="lbl" for="r-pid">Paciente</label><select class="in" id="r-pid">${d.pacientes.map(p=>`<option value="${p.id}" ${p.id===R.pid?'selected':''}>${esc(p.n)} · ${p.ced}</option>`).join('')}</select></div>
+        <div class="field"><label class="lbl" for="r-fecha">Fecha</label><input class="in" id="r-fecha" type="date" max="${TODAY}" value="${R.fecha}"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label class="lbl" for="r-centro">Centro médico <span class="opt">(opcional)</span></label><select class="in" id="r-centro"><option value="">Sin centro (consulta particular)</option>${d.centros.map(c=>`<option value="${c.id}" ${c.id===R.centro?'selected':''}>${esc(c.n)}</option>`).join('')}</select></div>
+        <div class="field"><label class="lbl" for="r-ref">Monto de referencia (USD)</label><input class="in num" id="r-ref" type="number" step="0.01" min="0" inputmode="decimal" value="${R.ref}"></div>
+      </div>
+      <div class="field" id="r-pctbox"></div>
+    </section>
+    <section class="card stack"><h2>Cobro</h2>
+      <label style="display:flex;gap:10px;align-items:center;min-height:32px"><input type="checkbox" id="r-nocob" ${R.noCobrado?'checked':''} style="width:20px;height:20px;accent-color:var(--accent-ink)"><span>Aún no he cobrado esta consulta</span></label>
+      <div class="stack" id="r-pay-wrap"><div class="stack" id="r-pay-box"></div></div>
+    </section>
+    <section class="card stack"><h2>Evolución</h2>
+      <fieldset><legend class="lbl">Tipo de registro</legend><div class="opts"><label><input type="radio" name="r-tipo" value="informe" ${R.tipo==='informe'?'checked':''}><span>Informe completo</span></label><label><input type="radio" name="r-tipo" value="nota" ${R.tipo==='nota'?'checked':''}><span>Nota de control</span></label></div></fieldset>
+      <div class="field"><label class="lbl" for="r-motivo">Motivo de consulta</label><input class="in" id="r-motivo" value="${esc(R.motivo)}" placeholder="${S.theme==='pediatria'?'Ej. Fiebre de dos días':'Ej. Visión borrosa en ojo derecho'}"></div>
+      <div class="stack" id="r-evo"></div>
+    </section>
+    <section class="card stack"><h2>Adjuntos</h2>
+      <p class="hint">Fotos de estudios: fondo de ojo, OCT, resonancias, radiografías.</p>
+      <div class="up" id="r-up"></div>
+    </section>
+   </div>
+   <aside class="card calc" aria-label="Resumen de la consulta"><h2 style="margin:0">Resumen</h2><div id="r-sum"></div>
+     <div class="err" id="r-err" role="alert" hidden></div>
+     <button class="btn primary" data-act="guardar">Guardar consulta</button>
+   </aside>
+  </div>`;
+}
+function mountRegistrar(){
+  const R=S.reg;
+  const getExp=()=>regNums().cor;
+  const sum=()=>{const n=regNums();const e=R.noCobrado?'pendiente':(n.pen<0.01?'cobrado':(n.cob>0?'parcial':'pendiente'));
+    $('#r-sum').innerHTML=`<div class="stack" style="gap:14px"><div class="l"><span class="muted">Te corresponde</span><span class="big num">${usd(n.cor)}</span></div><p class="hint num">${n.pct}% de ${usd(n.ref)}${R.centro?'':' · sin centro, cobras el 100%'}</p><hr><div class="l"><span class="muted">Recibido</span><b class="num">${usd(n.cob)}</b></div><div class="l"><span class="muted">Queda pendiente</span><b class="num">${usd(n.pen)}</b></div><div>${e==='cobrado'?'<span class="pill ok">Cobrado completo</span>':e==='parcial'?'<span class="pill warn">Cobro parcial</span>':'<span class="pill bad">Pendiente de cobro</span>'}</div></div>`};
+  const pctBox=()=>{const b=$('#r-pctbox'),c=R.centro?centro(R.centro):null;
+    b.innerHTML=c?`<label class="lbl" for="r-pct">Tu porcentaje en este centro (%)</label><input class="in num" id="r-pct" type="number" min="0" max="100" step="1" inputmode="numeric" value="${R.pct}"><p class="hint">Sugerido por el acuerdo con ${esc(c.n)}: ${c.pct}%. Puedes ajustarlo para esta consulta.</p>`:`<span class="lbl">Tu porcentaje</span><input class="in num" value="100 % (automático)" readonly aria-label="Porcentaje automático 100%"><p class="hint">Sin centro no hay reparto: cobras todo.</p>`;
+    const i=$('#r-pct');if(i)i.oninput=e=>{R.pct=e.target.value;R.pay.refresh&&R.pay.refresh();sum()}};
+  const after=()=>{R.pay.refresh&&R.pay.refresh();sum()};
+  $('#r-pid').onchange=e=>R.pid=e.target.value;
+  $('#r-fecha').onchange=e=>R.fecha=e.target.value;
+  $('#r-centro').onchange=e=>{R.centro=e.target.value;R.pct=R.centro?centro(R.centro).pct:100;pctBox();after()};
+  $('#r-ref').oninput=e=>{R.ref=e.target.value;after()};
+  $('#r-nocob').onchange=e=>{R.noCobrado=e.target.checked;$('#r-pay-wrap').hidden=R.noCobrado;sum()};
+  $('#r-pay-wrap').hidden=R.noCobrado;
+  $('#r-motivo').oninput=e=>R.motivo=e.target.value;
+  $$('input[name="r-tipo"]').forEach(r=>r.onchange=()=>{R.tipo=r.value;evo()});
+  R.pay.touched=false;R.pay.rec='';
+  mountPay('r-pay',R.pay,getExp,sum);
+  pctBox();sum();evo();ups();
+  function evo(){
+    const b=$('#r-evo');
+    if(R.tipo==='nota'){b.innerHTML=`<div class="field"><label class="lbl" for="r-nota">Nota</label><textarea class="in" id="r-nota" placeholder="Cómo sigue el paciente, ajustes de tratamiento, indicaciones">${esc(R.nota)}</textarea></div>`;$('#r-nota').oninput=e=>R.nota=e.target.value;return}
+    b.innerHTML=`<p class="hint">Las secciones cambian según el motivo de consulta. Renómbralas, quítalas o agrega otras.</p>${R.secs.map((s,i)=>`<div class="sec-edit"><div class="h"><input class="in" data-si="${i}" data-f="t" aria-label="Título de la sección ${i+1}" value="${esc(s.t)}" style="font-weight:600"><button class="btn icon sm" data-act="delsec" data-i="${i}" aria-label="Quitar sección ${esc(s.t)}">${ic('x',16)}</button></div><textarea class="in" data-si="${i}" data-f="x" aria-label="Contenido de ${esc(s.t)}" placeholder="Escribe aquí">${esc(s.x)}</textarea></div>`).join('')}<div><button class="btn sm" data-act="addsec">${ic('plus',16)}Agregar sección</button></div>`;
+    $$('[data-si]',b).forEach(el=>el.oninput=e=>{R.secs[+el.dataset.si][el.dataset.f]=e.target.value});
+  }
+  function ups(){
+    const u=$('#r-up');
+    u.innerHTML=R.adj.map((a,i)=>`<div class="prev"><span class="thumb"><img src="${a.src}" alt="${esc(a.label)}"></span><button class="x" data-act="deladj" data-i="${i}" aria-label="Quitar ${esc(a.label)}">${ic('x',14)}</button></div>`).join('')+`<label class="btn sm" for="r-file" style="cursor:pointer">${ic('image',16)}Adjuntar fotos</label><input id="r-file" class="sr" type="file" accept="image/*" multiple>`;
+    $('#r-file').onchange=e=>{[...e.target.files].forEach(f=>{const fr=new FileReader();fr.onload=()=>{R.adj.push({k:'foto',label:f.name.replace(/\.[^.]+$/,'')||'Foto adjunta',src:fr.result});ups()};fr.readAsDataURL(f)})};
+  }
+  S._evo=evo;S._ups=ups;S._sum=sum;
+}
+function guardar(){
+  const R=S.reg,n=regNums(),err=$('#r-err');
+  const fail=m=>{err.textContent=m;err.hidden=false;err.scrollIntoView({block:'nearest'})};
+  if(!R.pid)return fail('Elige el paciente.');
+  if(!R.motivo.trim())return fail('Escribe el motivo de consulta para guardar la evolución.');
+  if(!(n.ref>0))return fail('El monto de referencia debe ser mayor a cero.');
+  if(R.centro&&(n.pct<0||n.pct>100))return fail('El porcentaje debe estar entre 0 y 100.');
+  if(!R.noCobrado&&R.pay.cur==='Bs'&&!(parseFloat(R.pay.tasa)>0))return fail('Indica la tasa BCV del día para convertir los bolívares.');
+  const evo=R.tipo==='informe'?{t:'informe',motivo:R.motivo.trim(),s:R.secs.filter(s=>s.x.trim()).map(s=>[s.t.trim()||'Sección',s.x.trim()]),adj:R.adj}:{t:'nota',motivo:R.motivo.trim(),txt:R.nota.trim()||'Sin comentarios.',adj:R.adj};
+  if(evo.t==='informe'&&!evo.s.length)return fail('Escribe el contenido de al menos una sección del informe.');
+  const pagos=(!R.noCobrado&&parseFloat(R.pay.rec)>0)?[P(R.pay.m,parseFloat(R.pay.rec),R.pay.cur,R.pay.cur==='Bs'?parseFloat(R.pay.tasa):undefined)]:[];
+  D().consultas.push({id:'n'+Date.now(),pid:R.pid,d:R.fecha,c:R.centro||null,ref:n.ref,pct:n.pct,pagos,evo});
+  const pid=R.pid;S.reg=null;S.pid=pid;S.month=months().slice(-1)[0];
+  go('ficha');toast('Consulta guardada en la historia del paciente');
+}
+
+/* 5. resumen mensual */
+function viewResumen(){
+  const ms=months(),m=S.month||ms[ms.length-1],i=ms.indexOf(m);
+  const cons=D().consultas.filter(c=>c.d.slice(0,7)===m);
+  const groups=[...D().centros.map(c=>({id:c.id,n:c.n,pct:c.pct,list:cons.filter(x=>x.c===c.id)})),{id:'none',n:'Consultas particulares',pct:100,list:cons.filter(x=>!x.c)}].filter(g=>g.list.length);
+  const tot=l=>({cor:r2(l.reduce((s,c)=>s+corresponde(c),0)),cob:r2(l.reduce((s,c)=>s+Math.min(cobrado(c),corresponde(c)),0)),pen:r2(l.reduce((s,c)=>s+pendiente(c),0))});
+  const T=tot(cons);
+  const barH=t=>`<div class="bar" role="img" aria-label="Cobrado ${usd(t.cob)} de ${usd(t.cor)}; pendiente ${usd(t.pen)}"><i class="c" style="width:${t.cor?t.cob/t.cor*100:0}%"></i><i class="p" style="width:${t.cor?t.pen/t.cor*100:0}%"></i></div>`;
+  return `<div class="head"><h1>Ingresos</h1><p>Lo que te correspondía, lo que ya cobraste y lo que falta, centro por centro.</p></div>
+  <div class="mnav"><button class="btn icon sm" data-act="month" data-d="-1" aria-label="Mes anterior" ${i<=0?'disabled':''}>${ic('left',18)}</button><span class="cur">${mlabel(m)}</span><button class="btn icon sm" data-act="month" data-d="1" aria-label="Mes siguiente" ${i>=ms.length-1?'disabled':''}>${ic('right',18)}</button></div>
+  <section class="card stack" style="gap:16px" aria-label="Total del mes">
+    <div class="ledger"><div><div class="v num">${usd(T.cor)}</div><div class="k">Te correspondía</div></div><div><div class="v num">${usd(T.cob)}</div><div class="k">Cobrado</div></div><div><div class="v num">${usd(T.pen)}</div><div class="k">Pendiente</div></div></div>
+    ${barH(T)}
+    <div class="legend"><span><i style="background:var(--ok-bar)"></i>Cobrado</span><span><i style="background:var(--warn-bar)"></i>Pendiente</span><span>${cons.length} consultas en el mes</span></div>
+  </section>
+  <section class="stack" style="gap:14px"><h2>Por centro</h2>
+   ${groups.map(g=>{const t=tot(g.list);return `<article class="card stack" style="gap:14px">
+     <div class="cent">
+       <div class="nm"><b>${esc(g.n)}</b><span class="pill neutral">${g.id==='none'?'100% para ti':'Acuerdo '+g.pct+'%'}</span></div>
+       <div class="rowc"><div><div class="k">Te correspondía</div><div class="v num">${usd(t.cor)}</div></div><div><div class="k">Cobrado</div><div class="v num">${usd(t.cob)}</div></div><div><div class="k">Pendiente</div><div class="v num" ${t.pen>=.01?'style="color:var(--warn-text)"':''}>${usd(t.pen)}</div></div></div>
+       <div class="barw">${barH(t)}${t.pen>=.01?`<button class="linkbtn" style="text-align:left;justify-self:start" data-act="verpend" data-c="${g.id}">Ver pendientes de este centro</button>`:'<span class="pill ok" style="justify-self:start">Al día</span>'}</div>
+     </div>
+     <details class="detail"><summary>Detalle de ${g.list.length} consulta${g.list.length>1?'s':''}</summary><div class="tw"><table class="dl"><thead><tr><th>Fecha</th><th>Paciente</th><th class="r">Corresponde</th><th class="r">Cobrado</th><th>Estado</th></tr></thead><tbody>${g.list.sort((a,b)=>a.d<b.d?1:-1).map(c=>`<tr><td class="num">${fdate(c.d)}</td><td>${esc(paciente(c.pid).n)}</td><td class="r num">${usd(corresponde(c))}</td><td class="r num">${usd(cobrado(c))}</td><td>${statePill(c)}</td></tr>`).join('')}</tbody></table></div></details>
+   </article>`}).join('')}
+  </section>`;
+}
+
+/* 6. alertas de cobro */
+function viewAlertas(){
+  const all=pendientes();
+  const list=all.filter(c=>S.fc==='all'||(S.fc==='none'?!c.c:c.c===S.fc));
+  const tot=r2(list.reduce((s,c)=>s+pendiente(c),0));
+  const opts=[['all','Todos'],...D().centros.map(c=>[c.id,c.n]),['none','Particular']];
+  return `<div class="head"><h1>Por cobrar</h1><p>Consultas atendidas que todavía no cobraste completas.</p></div>
+  <div class="filters" role="group" aria-label="Filtrar por centro">${opts.map(([v,l])=>`<button class="fchip" data-act="fc" data-v="${v}" aria-pressed="${S.fc===v}">${esc(l)}</button>`).join('')}</div>
+  ${list.length?`<div class="sum-strip"><span class="pill warn">${ic('clock',14)}${list.length} consulta${list.length>1?'s':''} sin cobrar</span><b class="num" style="font-size:18px">${usd(tot)}</b><span class="muted">por cobrar</span></div>
+  <ul class="al">${list.map(c=>{const dd=daysAgo(c.d),p=paciente(c.pid),cen=c.c?centro(c.c):null,open=S.pay&&S.pay.id===c.id;
+    const sev=dd>=30?`<span class="pill bad">Más de 30 días</span>`:dd>=15?`<span class="pill warn">${dd} días</span>`:`<span class="pill neutral">${dd===0?'Hoy':dd===1?'Hace 1 día':'Hace '+dd+' días'}</span>`;
+    return `<li><div class="t"><div><b>${esc(p.n)}</b><div class="muted num" style="font-size:14px">${fdate(c.d)} · ${cen?esc(cen.n):'Particular'}</div></div><div style="display:flex;gap:6px;flex-wrap:wrap">${estado(c)==='parcial'?'<span class="pill warn">Cobro parcial</span>':''}${sev}</div></div>
+     <div class="nums"><div><div class="k">Te corresponde</div><div class="v num">${usd(corresponde(c))}</div></div><div><div class="k">Recibido</div><div class="v num">${usd(cobrado(c))}</div></div><div><div class="k">Falta</div><div class="v num" style="color:var(--warn-text)">${usd(pendiente(c))}</div></div></div>
+     ${open?`<div class="payform"><div class="stack" id="p-box"></div><div class="err" id="p-err" role="alert" hidden></div><div class="acts"><button class="btn primary" data-act="savepay" data-id="${c.id}">Guardar cobro</button><button class="btn" data-act="cancelpay">Cancelar</button></div></div>`
+     :`<div class="acts"><button class="btn sm primary" data-act="topay" data-id="${c.id}">Registrar cobro</button><button class="btn sm" data-act="ficha" data-pid="${p.id}">Abrir ficha</button></div>`}</li>`}).join('')}</ul>`
+  :`<div class="card empty">${ill('ok')}<h2>Todo cobrado${S.fc==='all'?'':' en este filtro'}</h2><p class="muted">No hay consultas pendientes. Cuando registres una consulta sin cobrar, aparecerá aquí.</p>${S.fc!=='all'?'<button class="btn sm" data-act="fc" data-v="all">Ver todos los centros</button>':''}</div>`}`;
+}
+function mountAlertas(){
+  if(!S.pay)return;
+  const c=D().consultas.find(x=>x.id===S.pay.id);
+  mountPay('p',S.pay.m,()=>pendiente(c),null);
+}
+
+/* ---------- navegación y render ---------- */
+function go(r){S.route=r;if(r==='registrar'&&!S.reg)S.reg=newReg(S.pid);if(r!=='alertas')S.pay=null;render();window.scrollTo(0,0)}
+function render(){
+  const app=$('#app');
+  if(S.route==='login'){app.innerHTML=viewLogin();$('#f-login').onsubmit=e=>{e.preventDefault();go('buscar')};return}
+  if(S.route==='ficha'&&!S.pid)S.route='buscar';
+  const v={buscar:viewBuscar,ficha:viewFicha,registrar:viewRegistrar,resumen:viewResumen,alertas:viewAlertas}[S.route]();
+  app.innerHTML=shell(v);
+  if(S.route==='buscar'){$('#s-ced').oninput=searchList;$('#s-pre').onchange=searchList;$('#s-ced').onkeydown=e=>{if(e.key==='Enter'){const b=$('#s-list .pbtn');if(b)b.click()}};searchList()}
+  if(S.route==='registrar')mountRegistrar();
+  if(S.route==='alertas')mountAlertas();
+}
+function setTema(t){
+  S.theme=t;document.documentElement.dataset.tema=t;
+  S.pid=null;S.reg=null;S.pay=null;S.fc='all';S.month=months().slice(-1)[0];
+  if(S.route!=='login')S.route='buscar';
+  closeModal();render();
+}
+function toast(m){const r=$('#toast-root');r.innerHTML=`<div class="toast" role="status">${esc(m)}</div>`;clearTimeout(toast.t);toast.t=setTimeout(()=>r.innerHTML='',3200)}
+
+/* modales */
+let lastFocus=null;
+function openModal(html,cls=''){lastFocus=document.activeElement;$('#overlay-root').innerHTML=`<div class="overlay" data-act="closebg"><div class="dialog ${cls}" role="dialog" aria-modal="true" aria-label="Vista ampliada">${html}</div></div>`;const b=$('#overlay-root [data-act="close"]');b&&b.focus()}
+function closeModal(){$('#overlay-root').innerHTML='';if(lastFocus&&lastFocus.focus){try{lastFocus.focus()}catch(e){}}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#overlay-root').children.length)closeModal()});
+const closeBtn=`<button class="btn icon sm" data-act="close" aria-label="Cerrar">${ic('x',18)}</button>`;
+function showInforme(id){
+  const c=D().consultas.find(x=>x.id===id),p=paciente(c.pid),cen=c.c?centro(c.c):null,d=D();
+  openModal(`<div class="bar-top"><b>Informe para el paciente</b>${closeBtn}</div>
+   <div class="paper"><div class="hd"><div><h3>${esc(d.doctor)}</h3><div>${esc(d.esp)}</div></div><div style="text-align:right"><b>Informe médico</b><div class="num">${fdate(c.d)}</div>${cen?`<div>${esc(cen.n)}</div>`:''}</div></div>
+    <div><b>${esc(p.n)}</b> · <span class="num">${p.ced}</span> · ${p.edad}</div>
+    <div class="s"><b>Motivo de consulta</b>${esc(c.evo.motivo)}</div>
+    ${c.evo.s.map(([t,x])=>`<div class="s"><b>${esc(t)}</b>${esc(x)}</div>`).join('')}
+    <div class="sign">${esc(d.doctor)}</div></div>
+   <div class="acts"><button class="btn primary" data-act="fakeprint">${ic('printer',18)}Imprimir o guardar PDF</button></div>
+   <p class="hint">En la versión final este botón abre la impresión con el membrete del médico. En este prototipo no imprime.</p>`);
+}
+function showImg(id,i){
+  const c=D().consultas.find(x=>x.id===id),a=c.evo.adj[i];
+  openModal(`<div class="bar-top"><b>${esc(a.label)}</b>${closeBtn}</div><div class="lightbox"><div class="im">${adjImg(a)}</div></div><p class="hint num">${fdate(c.d)}${a.src?'':' · Imagen de ejemplo dibujada para el prototipo'}</p>`,'lightbox');
+}
+
+/* eventos */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act]');if(!t)return;
+  const a=t.dataset.act;
+  if(a==='closebg'){if(e.target===t)closeModal();return}
+  switch(a){
+   case 'go':go(t.dataset.to);break;
+   case 'logout':S.route='login';S.pid=null;S.reg=null;render();break;
+   case 'ficha':S.pid=t.dataset.pid;go('ficha');break;
+   case 'nueva':S.pid=t.dataset.pid;S.reg=newReg(t.dataset.pid);go('registrar');break;
+   case 'informe':showInforme(t.dataset.id);break;
+   case 'img':showImg(t.dataset.id,+t.dataset.i);break;
+   case 'close':closeModal();break;
+   case 'fakeprint':toast('Disponible en la versión final: aquí se abrirá la impresión');break;
+   case 'addsec':S.reg.secs.push({t:'Nueva sección',x:''});S._evo();break;
+   case 'delsec':S.reg.secs.splice(+t.dataset.i,1);S._evo();break;
+   case 'deladj':S.reg.adj.splice(+t.dataset.i,1);S._ups();break;
+   case 'guardar':guardar();break;
+   case 'month':{const ms=months(),i=ms.indexOf(S.month||ms[ms.length-1])+ +t.dataset.d;if(ms[i]){S.month=ms[i];render()}break}
+   case 'verpend':S.fc=t.dataset.c;go('alertas');break;
+   case 'fc':S.fc=t.dataset.v;S.pay=null;render();break;
+   case 'topay':{const c=D().consultas.find(x=>x.id===t.dataset.id);S.pay={id:c.id,m:newPay()};render();break}
+   case 'cancelpay':S.pay=null;render();break;
+   case 'savepay':{
+     const c=D().consultas.find(x=>x.id===t.dataset.id),m=S.pay.m,err=$('#p-err');
+     if(!(parseFloat(m.rec)>0)){err.textContent='Indica el monto que recibiste.';err.hidden=false;break}
+     if(m.cur==='Bs'&&!(parseFloat(m.tasa)>0)){err.textContent='Indica la tasa BCV del día.';err.hidden=false;break}
+     c.pagos.push(P(m.m,parseFloat(m.rec),m.cur,m.cur==='Bs'?parseFloat(m.tasa):undefined));
+     S.pay=null;render();toast(pendiente(c)<.01?'Cobro registrado. Consulta al día':'Cobro parcial registrado. Aún falta '+usd(pendiente(c)));break}
+  }
+});
+$$('input[name="tema"]').forEach(r=>r.onchange=()=>setTema(r.value));
+S.month=months().slice(-1)[0];
+document.documentElement.dataset.tema='internista';
+render();
+</script>
+
+</body></html>
