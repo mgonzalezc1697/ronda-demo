@@ -281,7 +281,7 @@ legend{padding:0;margin-bottom:6px}
 .files{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
 .files li{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-surface)}
 .files .fi{width:40px;height:40px;flex:none;border-radius:10px;background:var(--accent-soft);color:var(--accent-soft-text);display:grid;place-items:center}
-.files .tx{flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:4px}
+.files .tx{flex:1 1 150px;min-width:0;display:flex;flex-direction:column;gap:4px}
 .files .tx b{font-weight:600;overflow-wrap:break-word}
 .files .tx .pill{white-space:normal;max-width:100%}
 .files .tx .m{font-size:13px;color:var(--text-2);display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
@@ -402,7 +402,7 @@ const P=(m,rec,cur,tasa)=>({m,rec,cur,tasa});
 const CENTROS=[{id:'c1',n:'Centro Médico Valle Alto',pct:65},{id:'c2',n:'Clínica Santa Elena',pct:60},{id:'c3',n:'Policlínica Los Robles',pct:55}];
 const DB={
  internista:{
-  doctor:'Dr. Andrés Villalobos',esp:'Internista y neuroftalmólogo',ini:'AV',fee:40,centros:CENTROS,
+  doctor:'Dr. Andrés Villalobos',esp:'Internista y neuroftalmólogo',ini:'AV',fee:40,centros:CENTROS.map(c=>({...c})),
   docs:[{id:'d1',name:'Ficha_Maria_Contreras.docx',b:2202010,pid:'p1',d:'2026-09-28'},{id:'d2',name:'Historial_Carlos_Medina.docx',b:1468006,pid:'p2',d:'2026-09-28'}],
   pacientes:[
    {id:'p1',n:'María Elena Contreras',ced:'V-12.345.678',edad:'58 años',sexo:'Femenino',contacto:'0414-555-0142',ant:[['Personales',['Hipertensión arterial','Diabetes tipo 2']],['Alergias',['Penicilina']],['Medicación',['Losartán 50 mg','Metformina 850 mg']],['Familiares',['Madre con glaucoma']]]},
@@ -426,7 +426,7 @@ const DB={
   ]
  },
  pediatria:{
-  doctor:'Dra. Marisol Peña',esp:'Pediatra',ini:'MP',fee:35,centros:CENTROS,
+  doctor:'Dra. Marisol Peña',esp:'Pediatra',ini:'MP',fee:35,centros:CENTROS.map(c=>({...c})),
   docs:[{id:'d1',name:'Historia_Sofia_Marcano.pdf',b:1887437,pid:'q1',d:'2026-09-28'},{id:'d2',name:'Ficha_Mateo_Rivas.docx',b:943718,pid:'q2',d:'2026-09-28'}],
   pacientes:[
    {id:'q1',n:'Sofía Valentina Marcano',ced:'V-31.987.220',edad:'6 años',sexo:'Femenino',contacto:'Repr.: Mariana Marcano · 0412-555-0177',ant:[['Personales',['Asma leve intermitente']],['Alergias',['Ninguna conocida']],['Vacunas',['Esquema al día']],['Nacimiento',['A término','3,4 kg']]]},
@@ -491,11 +491,11 @@ function shell(inner){
   return `<div class="shell">
    <aside class="side" aria-label="Navegación">
      ${brand()}
-     <nav class="nav">${items.map(i=>navBtn(i,false)).join('')}</nav>
+     <nav class="nav">${[...items,['centros','Mis centros','building']].map(i=>navBtn(i,false)).join('')}</nav>
      <div class="doc"><span class="avatar" aria-hidden="true">${d.ini}</span><div style="min-width:0"><div class="n">${esc(d.doctor)}</div><div class="e">${esc(d.esp)}</div></div><button class="btn icon sm" data-act="logout" aria-label="Salir">${ic('out',18)}</button></div>
    </aside>
    <main class="main"><div class="wrap">
-     <div class="topbar"><span class="brand-sm">${brand()}</span><span class="brand-sm" style="display:flex;gap:8px;align-items:center"><span class="avatar" aria-hidden="true">${d.ini}</span><button class="btn icon sm" data-act="logout" aria-label="Salir">${ic('out',18)}</button></span></div>
+     <div class="topbar"><span class="brand-sm">${brand()}</span><span class="brand-sm" style="display:flex;gap:8px;align-items:center"><button class="btn icon sm" data-act="go" data-to="centros" aria-label="Mis centros">${ic('building',18)}</button><span class="avatar" aria-hidden="true">${d.ini}</span><button class="btn icon sm" data-act="logout" aria-label="Salir">${ic('out',18)}</button></span></div>
      ${inner}
    </div></main>
    <nav class="tabs" aria-label="Navegación principal">${items.map(i=>navBtn(i,true)).join('')}</nav>
@@ -597,6 +597,46 @@ function mountMigrar(){
   drop.addEventListener('drop',e=>{if(e.dataTransfer&&e.dataTransfer.files.length)add(e.dataTransfer.files)});
 }
 
+/* mis centros */
+function viewCentros(){
+  const d=D(), act=d.centros.filter(c=>!c.off), f=S.cf;
+  const back=S.centrosFrom==='registrar'?`<div><button class="linkbtn" data-act="go" data-to="registrar">${ic('left',14)} Registrar consulta</button></div>`:'';
+  const nCons=c=>d.consultas.filter(x=>x.c===c.id).length;
+  const form=f?`<section class="card stack" aria-label="${f.mode==='add'?'Agregar centro':'Editar centro'}"><h2 style="margin:0">${f.mode==='add'?'Agregar centro':'Editar centro'}</h2>
+    <form id="c-f" class="stack" novalidate>
+      <div class="field"><label class="lbl" for="c-n">Nombre del centro</label><input class="in" id="c-n" maxlength="60" autocomplete="off" placeholder="Ej. Clínica El Ávila" value="${esc(f.n)}"></div>
+      <div class="field"><label class="lbl" for="c-p">Tu porcentaje (%)</label><input class="in num" id="c-p" type="number" min="1" max="100" step="1" inputmode="numeric" placeholder="Ej. 60" value="${esc(f.pct)}">
+        <p class="hint">Es lo que te queda a ti de cada consulta, según lo negociado con el centro. En cada consulta podrás ajustarlo ese día.${f.mode==='edit'?' El cambio aplica a las consultas nuevas; las ya registradas conservan su porcentaje.':''}</p></div>
+      <div class="err" id="c-err" role="alert" hidden></div>
+      <div class="acts"><button class="btn primary" type="submit">${f.mode==='add'?'Guardar centro':'Guardar cambios'}</button><button class="btn" type="button" data-act="ccancel">Cancelar</button></div>
+    </form></section>`:'';
+  const rows=act.map(c=>{const n=nCons(c);return `<li><span class="fi" aria-hidden="true">${ic('building',20)}</span><div class="tx"><b>${esc(c.n)}</b><span class="m num"><span class="pill soft">Tu porcentaje ${c.pct}%</span><span>${n?n+' consulta'+(n===1?'':'s')+' registrada'+(n===1?'':'s'):'Sin consultas todavía'}</span></span></div><div class="fa"><button class="btn sm" data-act="cedit" data-id="${c.id}" aria-label="Editar ${esc(c.n)}">Editar</button><button class="btn sm" data-act="cdel" data-id="${c.id}" aria-label="Quitar ${esc(c.n)}">Quitar</button></div>
+    ${S.cdel===c.id?`<div class="payform" style="width:100%" role="alert"><p>${n?`¿Quitar <b>${esc(c.n)}</b>? Sus ${n} consulta${n===1?'':'s'} anterior${n===1?'':'es'} se conserva${n===1?'':'n'} en el historial y en Ingresos, pero ya no podrás elegirlo al registrar una consulta.`:`¿Quitar <b>${esc(c.n)}</b>? Todavía no tiene consultas registradas.`}</p><div class="acts"><button class="btn sm primary" data-act="cdelok" data-id="${c.id}">Sí, quitar</button><button class="btn sm" data-act="cdelno">Cancelar</button></div></div>`:''}</li>`}).join('');
+  return `${back}<div class="head"><h1>Mis centros</h1><p>Los centros médicos donde atiendes y el porcentaje que negociaste con cada uno. Se sugiere al registrar una consulta.</p></div>
+  ${form}
+  <section class="card"><div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><h2 style="margin:0">Centros donde atiendes (${act.length})</h2>${f?'':`<button class="btn primary sm" data-act="cadd">${ic('plus',16)}Agregar centro</button>`}</div>
+    ${act.length?`<ul class="files">${rows}</ul>`:`<div class="empty">${ill('ok')}<h3>Aún no tienes centros</h3><p class="muted">Agrega el primero para que se sugiera tu porcentaje al registrar consultas.</p></div>`}
+  </section>
+  <div class="callout" role="note">${ic('info',20)}<p>Las consultas particulares no necesitan centro: si no eliges uno al registrar, cobras el 100%.</p></div>`;
+}
+function mountCentros(){
+  const f=S.cf;if(!f)return;
+  const n=$('#c-n'),p=$('#c-p'),err=$('#c-err');
+  n.oninput=()=>f.n=n.value;p.oninput=()=>f.pct=p.value;
+  n.focus();
+  $('#c-f').onsubmit=e=>{
+    e.preventDefault();
+    const nm=n.value.trim(),pc=Number(p.value),fail=m=>{err.textContent=m;err.hidden=false};
+    if(!nm)return fail('Escribe el nombre del centro.');
+    if(!p.value.trim()||!Number.isInteger(pc)||pc<1||pc>100)return fail('El porcentaje debe ser un número entero entre 1 y 100.');
+    if(D().centros.some(c=>!c.off&&c.id!==f.id&&c.n.toLowerCase()===nm.toLowerCase()))return fail('Ya tienes un centro con ese nombre.');
+    if(f.mode==='edit'){const c=centro(f.id);c.n=nm;c.pct=pc;S.cf=null;render();toast('Cambios guardados en '+nm);return}
+    const nc={id:'c'+Date.now(),n:nm,pct:pc};D().centros.push(nc);S.cf=null;
+    if(S.fromSelect&&S.reg){S.fromSelect=false;S.reg.centro=nc.id;S.reg.pct=nc.pct;go('registrar');toast(nm+' agregado y seleccionado');return}
+    render();toast(nm+' agregado a tus centros');
+  };
+}
+
 /* pagos: componente compartido (registrar y por cobrar) */
 function newPay(){return {m:'pm',cur:'Bs',rec:'',tasa:TASA.toFixed(2),touched:false}}
 function payHTML(id,m){
@@ -637,10 +677,11 @@ function viewRegistrar(){
         <div class="field"><label class="lbl" for="r-fecha">Fecha</label><input class="in" id="r-fecha" type="date" max="${TODAY}" value="${R.fecha}"></div>
       </div>
       <div class="row2">
-        <div class="field"><label class="lbl" for="r-centro">Centro médico <span class="opt">(opcional)</span></label><select class="in" id="r-centro"><option value="">Sin centro (consulta particular)</option>${d.centros.map(c=>`<option value="${c.id}" ${c.id===R.centro?'selected':''}>${esc(c.n)}</option>`).join('')}</select></div>
+        <div class="field"><label class="lbl" for="r-centro">Centro médico <span class="opt">(opcional)</span></label><select class="in" id="r-centro"><option value="">Sin centro (consulta particular)</option>${d.centros.filter(c=>!c.off).map(c=>`<option value="${c.id}" ${c.id===R.centro?'selected':''}>${esc(c.n)}</option>`).join('')}<option value="__nuevo">+ Agregar un centro nuevo…</option></select></div>
         <div class="field"><label class="lbl" for="r-ref">Monto de referencia (USD)</label><input class="in num" id="r-ref" type="number" step="0.01" min="0" inputmode="decimal" value="${R.ref}"></div>
       </div>
       <div class="field" id="r-pctbox"></div>
+      <div><button class="linkbtn" data-act="centros" data-from="registrar">¿No está tu centro? Administra tus centros</button></div>
     </section>
     <section class="card stack"><h2>Cobro</h2>
       <label style="display:flex;gap:10px;align-items:center;min-height:32px"><input type="checkbox" id="r-nocob" ${R.noCobrado?'checked':''} style="width:20px;height:20px;accent-color:var(--accent-ink)"><span>Aún no he cobrado esta consulta</span></label>
@@ -673,7 +714,7 @@ function mountRegistrar(){
   const after=()=>{R.pay.refresh&&R.pay.refresh();sum()};
   $('#r-pid').onchange=e=>R.pid=e.target.value;
   $('#r-fecha').onchange=e=>R.fecha=e.target.value;
-  $('#r-centro').onchange=e=>{R.centro=e.target.value;R.pct=R.centro?centro(R.centro).pct:100;pctBox();after()};
+  $('#r-centro').onchange=e=>{if(e.target.value==='__nuevo'){S.centrosFrom='registrar';S.fromSelect=true;S.cdel=null;S.cf={mode:'add',id:null,n:'',pct:''};go('centros');return}R.centro=e.target.value;R.pct=R.centro?centro(R.centro).pct:100;pctBox();after()};
   $('#r-ref').oninput=e=>{R.ref=e.target.value;after()};
   $('#r-nocob').onchange=e=>{R.noCobrado=e.target.checked;$('#r-pay-wrap').hidden=R.noCobrado;sum()};
   $('#r-pay-wrap').hidden=R.noCobrado;
@@ -743,7 +784,7 @@ function viewAlertas(){
   const all=pendientes();
   const list=all.filter(c=>S.fc==='all'||(S.fc==='none'?!c.c:c.c===S.fc));
   const tot=r2(list.reduce((s,c)=>s+pendiente(c),0));
-  const opts=[['all','Todos'],...D().centros.map(c=>[c.id,c.n]),['none','Particular']];
+  const opts=[['all','Todos'],...D().centros.filter(c=>!c.off||all.some(p=>p.c===c.id)).map(c=>[c.id,c.n]),['none','Particular']];
   return `<div class="head"><h1>Por cobrar</h1><p>Consultas atendidas que todavía no cobraste completas.</p></div>
   <div class="filters" role="group" aria-label="Filtrar por centro">${opts.map(([v,l])=>`<button class="fchip" data-act="fc" data-v="${v}" aria-pressed="${S.fc===v}">${esc(l)}</button>`).join('')}</div>
   ${list.length?`<div class="sum-strip"><span class="pill warn">${ic('clock',14)}${list.length} consulta${list.length>1?'s':''} sin cobrar</span><b class="num" style="font-size:18px">${usd(tot)}</b><span class="muted">por cobrar</span></div>
@@ -762,21 +803,22 @@ function mountAlertas(){
 }
 
 /* ---------- navegación y render ---------- */
-function go(r){S.route=r;if(r==='registrar'&&!S.reg)S.reg=newReg(S.pid);if(r!=='alertas')S.pay=null;render();window.scrollTo(0,0)}
+function go(r){S.route=r;if(r!=='centros'){S.cf=null;S.cdel=null}if(r!=='registrar'&&r!=='centros')S.fromSelect=false;if(r==='registrar'&&!S.reg)S.reg=newReg(S.pid);if(r!=='alertas')S.pay=null;render();window.scrollTo(0,0)}
 function render(){
   const app=$('#app');
   if(S.route==='login'){app.innerHTML=viewLogin();$('#f-login').onsubmit=e=>{e.preventDefault();go('buscar')};return}
   if(S.route==='ficha'&&!S.pid)S.route='buscar';
-  const v={buscar:viewBuscar,ficha:viewFicha,migrar:viewMigrar,registrar:viewRegistrar,resumen:viewResumen,alertas:viewAlertas}[S.route]();
+  const v={buscar:viewBuscar,ficha:viewFicha,centros:viewCentros,migrar:viewMigrar,registrar:viewRegistrar,resumen:viewResumen,alertas:viewAlertas}[S.route]();
   app.innerHTML=shell(v);
   if(S.route==='buscar'){$('#s-ced').oninput=searchList;$('#s-pre').onchange=searchList;$('#s-ced').onkeydown=e=>{if(e.key==='Enter'){const b=$('#s-list .pbtn');if(b)b.click()}};searchList()}
   if(S.route==='registrar')mountRegistrar();
   if(S.route==='migrar')mountMigrar();
+  if(S.route==='centros')mountCentros();
   if(S.route==='alertas')mountAlertas();
 }
 function setTema(t){
   S.theme=t;document.documentElement.dataset.tema=t;
-  S.pid=null;S.reg=null;S.pay=null;S.migPid=null;S.migErr='';S.fc='all';S.month=months().slice(-1)[0];
+  S.pid=null;S.reg=null;S.pay=null;S.migPid=null;S.migErr='';S.cf=null;S.cdel=null;S.fromSelect=false;S.centrosFrom='';S.fc='all';S.month=months().slice(-1)[0];
   if(S.route!=='login')S.route='buscar';
   closeModal();render();
 }
@@ -810,7 +852,17 @@ document.addEventListener('click',e=>{
   const a=t.dataset.act;
   if(a==='closebg'){if(e.target===t)closeModal();return}
   switch(a){
-   case 'go':go(t.dataset.to);break;
+   case 'go':if(t.dataset.to==='centros'){S.centrosFrom='';S.fromSelect=false;S.cf=null;S.cdel=null}go(t.dataset.to);break;
+   case 'centros':S.centrosFrom=t.dataset.from||'';S.fromSelect=false;S.cf=null;S.cdel=null;go('centros');break;
+   case 'cadd':S.cf={mode:'add',id:null,n:'',pct:''};S.cdel=null;render();break;
+   case 'cedit':{const c=centro(t.dataset.id);S.cf={mode:'edit',id:c.id,n:c.n,pct:String(c.pct)};S.cdel=null;render();break}
+   case 'ccancel':S.cf=null;if(S.fromSelect){S.fromSelect=false;go('registrar')}else render();break;
+   case 'cdel':S.cdel=t.dataset.id;S.cf=null;render();break;
+   case 'cdelno':S.cdel=null;render();break;
+   case 'cdelok':{const ds=D().centros,i=ds.findIndex(x=>x.id===t.dataset.id),c=ds[i],n=D().consultas.filter(x=>x.c===c.id).length;
+     if(n)c.off=true;else ds.splice(i,1);
+     if(S.reg&&S.reg.centro===c.id){S.reg.centro='';S.reg.pct=100}
+     S.cdel=null;render();toast(n?c.n+' ya no aparece al registrar. Sus '+n+' consulta'+(n===1?'':'s')+' se conserva'+(n===1?'':'n'):c.n+' quitado de tus centros');break}
    case 'logout':S.route='login';S.pid=null;S.reg=null;render();break;
    case 'ficha':S.pid=t.dataset.pid;go('ficha');break;
    case 'nueva':S.pid=t.dataset.pid;S.reg=newReg(t.dataset.pid);go('registrar');break;
